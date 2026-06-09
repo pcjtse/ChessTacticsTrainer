@@ -2,6 +2,12 @@
 
 An Android app for practising chess tactics with puzzles sourced live from Lichess, with an optional AI coach powered by OpenAI.
 
+## Screenshots
+
+| Home | Puzzle | Stats |
+|:---:|:---:|:---:|
+| ![Home screen](screenshots/screenshot_home.png) | ![Puzzle screen](screenshots/screenshot_puzzle.png) | ![Stats screen](screenshots/screenshot_stats.png) |
+
 ## Features
 
 - **Daily puzzles** — fetches random rated puzzles from the Lichess public API (no account required)
