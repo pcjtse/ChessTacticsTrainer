@@ -1,5 +1,6 @@
 package com.example.chesstacticstrainer.engine
 
+import android.util.Log
 import com.example.chesstacticstrainer.domain.engine.ChessEngine
 import com.example.chesstacticstrainer.domain.model.BoardState
 import com.example.chesstacticstrainer.domain.model.ChessMove
@@ -26,6 +27,7 @@ class ChessLibEngine : ChessEngine {
             // chesslib throws ArrayIndexOutOfBoundsException (pieces[64]) for certain
             // positions (e.g. checkmate) inside doMove or its internal legalMoves call.
             // Return the pre-move board; isCorrect is already computed independently.
+            Log.e("CTT", "applyMove failed for uci=$uciMove fen=${state.fen}: ${e.message}")
             state
         }
     }

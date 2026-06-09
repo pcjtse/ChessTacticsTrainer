@@ -1,5 +1,6 @@
 package com.example.chesstacticstrainer.presentation.puzzle
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -42,6 +43,7 @@ class PuzzleViewModel(
     private var currentPuzzle: Puzzle? = null
     private var moveIndex = 0
     private var boardBeforeWrongMove: BoardState? = null
+    private var isFlipped = false
 
     init {
         loadNextPuzzle()
@@ -49,6 +51,7 @@ class PuzzleViewModel(
 
     fun loadNextPuzzle() {
         boardBeforeWrongMove = null
+        isFlipped = false
         _uiState.value = PuzzleUiState.Loading
         viewModelScope.launch {
             getNextPuzzle()
@@ -56,6 +59,9 @@ class PuzzleViewModel(
                     currentPuzzle = puzzle
                     currentBoard = engine.loadFen(startFen)
                     moveIndex = 0
+                    // Flip board so the player's pieces are always at the bottom
+                    isFlipped = engine.sideToMove(currentBoard!!) == "black"
+                    Log.d("CTT", "Puzzle loaded: id=${puzzle.id} playerSide=${if (isFlipped) "black" else "white"} moveIndex=$moveIndex")
                     _uiState.value = PuzzleUiState.Active(
                         puzzleId = puzzle.id,
                         rating = puzzle.rating,
@@ -103,6 +109,8 @@ class PuzzleViewModel(
         val board = currentBoard ?: return
         val puzzle = currentPuzzle ?: return
         val uci = "$from$to"
+        val expected = puzzle.solutionMoves.getOrNull(moveIndex * 2)
+        Log.d("CTT", "submitMove: uci=$uci expected=$expected moveIndex=$moveIndex allMoves=${puzzle.solutionMoves}")
 
         val result = withContext(Dispatchers.Default) {
             validateMove(board, uci, puzzle.solutionMoves, moveIndex)
@@ -118,7 +126,8 @@ class PuzzleViewModel(
                 result = PuzzleResult.WRONG,
                 explanation = getExplanation(puzzle.themes, isCorrect = false),
                 aiAvailable = getAiExplanation.isAvailable,
-                showingSolution = false
+                showingSolution = false,
+                lastMoveWasCorrect = false
             )
             return
         }
@@ -136,7 +145,8 @@ class PuzzleViewModel(
                     computerReply.substring(0, 2),
                     computerReply.substring(2, 4)
                 ),
-                moveIndex = moveIndex
+                moveIndex = moveIndex,
+                lastMoveWasCorrect = true
             )
         } else {
             runCatching { updateStreak(solved = true) }
@@ -145,7 +155,8 @@ class PuzzleViewModel(
                 boardState = result.newBoardState.toUiState(from, to),
                 result = PuzzleResult.COMPLETE,
                 explanation = getExplanation(puzzle.themes, isCorrect = true),
-                aiAvailable = getAiExplanation.isAvailable
+                aiAvailable = getAiExplanation.isAvailable,
+                lastMoveWasCorrect = false
             )
         }
     }
@@ -153,7 +164,7 @@ class PuzzleViewModel(
     fun onHintRequested() {
         val state = _uiState.value as? PuzzleUiState.Active ?: return
         val puzzle = currentPuzzle ?: return
-        val hintFrom = puzzle.solutionMoves.getOrNull(moveIndex * 2 + 1)?.take(2) ?: return
+        val hintFrom = puzzle.solutionMoves.getOrNull(moveIndex * 2)?.take(2) ?: return
         _uiState.value = state.copy(hintSquare = hintFrom)
     }
 
@@ -204,9 +215,13 @@ class PuzzleViewModel(
         val board = boardBeforeWrongMove ?: return
         val state = _uiState.value as? PuzzleUiState.Active ?: return
         val puzzle = currentPuzzle ?: return
-        val expectedMove = puzzle.solutionMoves.getOrNull(moveIndex * 2 + 1) ?: return
+        val expectedMove = puzzle.solutionMoves.getOrNull(moveIndex * 2) ?: return
         val fromSq = expectedMove.take(2)
         val toSq = expectedMove.substring(2, 4)
+        val pieceAtFrom = board.pieceMap[fromSq]
+        Log.d("CTT", "showSolution: moveIndex=$moveIndex expectedMove=$expectedMove fromSq=$fromSq toSq=$toSq")
+        Log.d("CTT", "  pieceAtFrom=$pieceAtFrom boardFen=${board.fen}")
+        Log.d("CTT", "  allSolutionMoves=${puzzle.solutionMoves}")
         currentBoard = board
         _uiState.value = state.copy(
             boardState = board.toUiState().copy(
@@ -223,7 +238,8 @@ class PuzzleViewModel(
         pieceMap = pieceMap.mapValues { (_, p) -> p.toUi() },
         checkedKingSquare = if (isCheck) findKingSquare() else null,
         lastMoveFrom = lastFrom,
-        lastMoveTo = lastTo
+        lastMoveTo = lastTo,
+        isFlipped = this@PuzzleViewModel.isFlipped
     )
 
     private fun BoardState.findKingSquare(): String? {

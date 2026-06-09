@@ -17,14 +17,13 @@ class ValidateMoveUseCase(private val engine: ChessEngine) {
         solutionMoves: List<String>,
         moveIndex: Int
     ): Result {
-        // solution[0] = opponent trigger (pre-applied at load time)
-        // Player moves at odd indices:  1, 3, 5...  → moveIndex * 2 + 1
-        // Computer replies at even indices > 0: 2, 4, 6... → moveIndex * 2 + 2
-        val expectedUserMove = solutionMoves.getOrNull(moveIndex * 2 + 1)
+        // Player moves at even indices: 0, 2, 4... → moveIndex * 2
+        // Computer replies at odd indices: 1, 3, 5... → moveIndex * 2 + 1
+        val expectedUserMove = solutionMoves.getOrNull(moveIndex * 2)
         val isCorrect = expectedUserMove == null || uciMove == expectedUserMove
 
         val newBoard = engine.applyMove(boardState, uciMove)
-        val computerReply = if (isCorrect) solutionMoves.getOrNull(moveIndex * 2 + 2) else null
+        val computerReply = if (isCorrect) solutionMoves.getOrNull(moveIndex * 2 + 1) else null
 
         return Result(isCorrect, newBoard, computerReply)
     }

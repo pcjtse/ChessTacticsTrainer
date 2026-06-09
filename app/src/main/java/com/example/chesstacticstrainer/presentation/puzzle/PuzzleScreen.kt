@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -140,11 +141,20 @@ fun PuzzleScreen(
                         Spacer(Modifier.height(16.dp))
 
                         when (state.result) {
-                            null -> Text(
-                                "Find the winning move",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                            null -> if (state.lastMoveWasCorrect) {
+                                Text(
+                                    "Good move! Find the next one",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            } else {
+                                Text(
+                                    "Find the winning move",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                             PuzzleResult.COMPLETE -> ResultCard(
                                 isSuccess = true,
                                 title = state.explanation?.tacticName ?: "Excellent!",
@@ -345,12 +355,19 @@ private fun AiExplanationSection(
                             )
                         }
                         Spacer(Modifier.height(8.dp))
-                        Text(
-                            state.aiExplanation,
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontStyle = FontStyle.Italic,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer
-                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = 200.dp)
+                                .verticalScroll(rememberScrollState())
+                        ) {
+                            Text(
+                                state.aiExplanation,
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontStyle = FontStyle.Italic,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        }
                     }
                 }
             }

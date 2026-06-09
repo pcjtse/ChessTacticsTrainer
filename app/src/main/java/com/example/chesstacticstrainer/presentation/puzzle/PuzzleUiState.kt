@@ -18,7 +18,8 @@ sealed interface PuzzleUiState {
         val aiExplanation: String? = null,
         val isLoadingAi: Boolean = false,
         val aiAvailable: Boolean = false,
-        val showingSolution: Boolean = false
+        val showingSolution: Boolean = false,
+        val lastMoveWasCorrect: Boolean = false
     ) : PuzzleUiState
 }
 
