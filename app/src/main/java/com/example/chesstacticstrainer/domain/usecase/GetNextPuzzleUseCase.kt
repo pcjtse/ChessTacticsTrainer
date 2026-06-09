@@ -27,4 +27,8 @@ class GetNextPuzzleUseCase(
     suspend fun markSolved(puzzleId: String) {
         repository.markPuzzleSolved(puzzleId)
     }
+
+    suspend fun removeBroken(puzzleId: String) {
+        repository.removePuzzle(puzzleId)
+    }
 }

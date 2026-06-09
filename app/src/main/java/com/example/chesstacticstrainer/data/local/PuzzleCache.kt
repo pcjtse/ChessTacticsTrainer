@@ -48,6 +48,10 @@ class PuzzleCache(private val context: Context, private val moshi: Moshi) {
     suspend fun markSolved(id: String) {
         writeAll(readAll().map { if (it.id == id) it.copy(isSolved = true) else it })
     }
+
+    suspend fun remove(id: String) {
+        writeAll(readAll().filter { it.id != id })
+    }
 }
 
 data class CachedPuzzle(

@@ -40,6 +40,10 @@ class PuzzleRepositoryImpl(
         puzzleCache.markSolved(puzzleId)
     }
 
+    override suspend fun removePuzzle(puzzleId: String): Result<Unit> = runCatching {
+        puzzleCache.remove(puzzleId)
+    }
+
     override suspend fun prefetchPuzzles(count: Int): Result<Unit> = runCatching {
         for (i in 0 until count) {
             val fetchResult = runCatching {

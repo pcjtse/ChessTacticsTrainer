@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.Flow
 interface PuzzleRepository {
     suspend fun getNextPuzzle(): Result<Puzzle>
     suspend fun markPuzzleSolved(puzzleId: String): Result<Unit>
+    suspend fun removePuzzle(puzzleId: String): Result<Unit>
     suspend fun prefetchPuzzles(count: Int = 20): Result<Unit>
     fun observeUserProgress(): Flow<UserProgress>
     suspend fun updateUserProgress(progress: UserProgress): Result<Unit>

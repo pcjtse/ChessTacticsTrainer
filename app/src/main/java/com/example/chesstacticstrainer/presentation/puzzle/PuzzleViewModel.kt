@@ -136,8 +136,30 @@ class PuzzleViewModel(
 
         val computerReply = result.computerReply
         if (computerReply != null) {
+            // Validate the reply is a legal move BEFORE applying it.
+            // chesslib.doMove() silently applies illegal moves (wrong-colour piece,
+            // impossible move) without throwing — the board gets corrupted and the
+            // side-to-move ends up wrong, causing the "AI moved my piece" side-switch.
+            // isMoveLegal checks the legal-moves list for the side to move, so an
+            // opponent-reply that references a friendly piece is caught here.
+            val replyIsLegal = withContext(Dispatchers.Default) {
+                runCatching { engine.isMoveLegal(result.newBoardState, computerReply) }.getOrDefault(false)
+            }
+            if (!replyIsLegal) {
+                Log.e("CTT", "computerReply=$computerReply illegal in FEN=${result.newBoardState.fen} — evicting puzzle ${puzzle.id}")
+                runCatching { getNextPuzzle.removeBroken(puzzle.id) }
+                loadNextPuzzle()
+                return
+            }
             val afterReply = withContext(Dispatchers.Default) {
                 engine.applyMove(result.newBoardState, computerReply)
+            }
+            // Secondary guard: if applyMove threw and returned the unchanged state, skip.
+            if (afterReply.fen == result.newBoardState.fen) {
+                Log.e("CTT", "computerReply=$computerReply failed to apply — evicting puzzle ${puzzle.id}")
+                runCatching { getNextPuzzle.removeBroken(puzzle.id) }
+                loadNextPuzzle()
+                return
             }
             currentBoard = afterReply
             _uiState.value = state.copy(
@@ -176,6 +198,7 @@ class PuzzleViewModel(
         _uiState.value = state.copy(isLoadingAi = true)
         viewModelScope.launch {
             getAiExplanation(
+                fen = puzzle.fen,
                 themes = puzzle.themes,
                 solutionMoves = puzzle.solutionMoves,
                 rating = puzzle.rating,
@@ -222,6 +245,14 @@ class PuzzleViewModel(
         Log.d("CTT", "showSolution: moveIndex=$moveIndex expectedMove=$expectedMove fromSq=$fromSq toSq=$toSq")
         Log.d("CTT", "  pieceAtFrom=$pieceAtFrom boardFen=${board.fen}")
         Log.d("CTT", "  allSolutionMoves=${puzzle.solutionMoves}")
+        // pieceAtFrom==null means the FEN is wrong for this puzzle — skip rather than
+        // highlighting an empty square as the "solution".
+        if (pieceAtFrom == null) {
+            Log.e("CTT", "showSolution: no piece at $fromSq — evicting broken puzzle ${puzzle.id}")
+            runCatching { viewModelScope.launch { getNextPuzzle.removeBroken(puzzle.id) } }
+            loadNextPuzzle()
+            return
+        }
         currentBoard = board
         _uiState.value = state.copy(
             boardState = board.toUiState().copy(
