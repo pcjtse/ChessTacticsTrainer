@@ -95,12 +95,14 @@ class PuzzleViewModel(
         if (!piece.matchesSide(engine.sideToMove(board))) { deselect(state); return }
         val targets = engine.getLegalMovesFromSquare(board, square).map { it.toSquare }
         _uiState.value = state.copy(
+            hintSquare = null,
             boardState = state.boardState.copy(selectedSquare = square, legalTargets = targets)
         )
     }
 
     private fun deselect(state: PuzzleUiState.Active) {
         _uiState.value = state.copy(
+            hintSquare = null,
             boardState = state.boardState.copy(selectedSquare = null, legalTargets = emptyList())
         )
     }
@@ -122,8 +124,9 @@ class PuzzleViewModel(
             boardBeforeWrongMove = board
             runCatching { updateStreak(solved = false) }
             _uiState.value = state.copy(
-                boardState = result.newBoardState.toUiState(from, to),
-                result = PuzzleResult.WRONG,
+                hintSquare  = null,
+                boardState  = result.newBoardState.toUiState(from, to),
+                result      = PuzzleResult.WRONG,
                 explanation = getExplanation(puzzle.themes, isCorrect = false),
                 aiAvailable = getAiExplanation.isAvailable,
                 showingSolution = false,
@@ -163,6 +166,7 @@ class PuzzleViewModel(
             }
             currentBoard = afterReply
             _uiState.value = state.copy(
+                hintSquare = null,
                 boardState = afterReply.toUiState(
                     computerReply.substring(0, 2),
                     computerReply.substring(2, 4)
@@ -174,8 +178,9 @@ class PuzzleViewModel(
             runCatching { updateStreak(solved = true) }
             runCatching { getNextPuzzle.markSolved(puzzle.id) }
             _uiState.value = state.copy(
-                boardState = result.newBoardState.toUiState(from, to),
-                result = PuzzleResult.COMPLETE,
+                hintSquare  = null,
+                boardState  = result.newBoardState.toUiState(from, to),
+                result      = PuzzleResult.COMPLETE,
                 explanation = getExplanation(puzzle.themes, isCorrect = true),
                 aiAvailable = getAiExplanation.isAvailable,
                 lastMoveWasCorrect = false
@@ -184,10 +189,15 @@ class PuzzleViewModel(
     }
 
     fun onHintRequested() {
-        val state = _uiState.value as? PuzzleUiState.Active ?: return
-        val puzzle = currentPuzzle ?: return
+        val state    = _uiState.value as? PuzzleUiState.Active ?: return
+        val puzzle   = currentPuzzle ?: return
+        val board    = currentBoard ?: return
         val hintFrom = puzzle.solutionMoves.getOrNull(moveIndex * 2)?.take(2) ?: return
-        _uiState.value = state.copy(hintSquare = hintFrom)
+        val targets  = engine.getLegalMovesFromSquare(board, hintFrom).map { it.toSquare }
+        _uiState.value = state.copy(
+            hintSquare = hintFrom,
+            boardState = state.boardState.copy(selectedSquare = hintFrom, legalTargets = targets)
+        )
     }
 
     fun onAiExplanationRequested() {

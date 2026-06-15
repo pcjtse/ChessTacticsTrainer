@@ -122,17 +122,10 @@ fun PuzzleScreen(
 
                         Spacer(Modifier.height(8.dp))
 
-                        val boardUiState = if (state.hintSquare != null && state.result == null) {
-                            state.boardState.copy(
-                                selectedSquare = state.hintSquare,
-                                legalTargets = emptyList()
-                            )
-                        } else {
-                            state.boardState
-                        }
-
+                        // hintSquare is reflected in boardState.selectedSquare/legalTargets
+                        // (set by onHintRequested), so boardState is used directly.
                         ChessBoardComponent(
-                            state = boardUiState,
+                            state = state.boardState,
                             onSquareTapped = { sq ->
                                 if (state.result == null) viewModel.onSquareTapped(sq)
                             }

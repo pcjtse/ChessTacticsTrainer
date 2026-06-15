@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.chesstacticstrainer.presentation.home.HomeScreen
 import com.example.chesstacticstrainer.presentation.puzzle.PuzzleScreen
+import com.example.chesstacticstrainer.presentation.puzzle.XiangqiPuzzleScreen
 import com.example.chesstacticstrainer.presentation.settings.SettingsScreen
 import com.example.chesstacticstrainer.presentation.stats.StatsScreen
 
@@ -22,15 +23,21 @@ fun AppNavGraph(
     }
 
     NavHost(
-        navController = navController,
+        navController    = navController,
         startDestination = Screen.Home.route,
-        modifier = modifier
+        modifier         = modifier
     ) {
         composable(Screen.Home.route) {
-            HomeScreen(onStartPuzzle = { navController.navigate(Screen.Puzzle.route) })
+            HomeScreen(
+                onStartChess   = { navController.navigate(Screen.Puzzle.route) },
+                onStartXiangqi = { navController.navigate(Screen.XiangqiPuzzle.route) }
+            )
         }
         composable(Screen.Puzzle.route) {
             PuzzleScreen(onNavigateBack = { navController.popBackStack() })
+        }
+        composable(Screen.XiangqiPuzzle.route) {
+            XiangqiPuzzleScreen(onNavigateBack = { navController.popBackStack() })
         }
         composable(Screen.Stats.route) {
             StatsScreen()

@@ -9,15 +9,18 @@ import com.example.chesstacticstrainer.domain.model.ThemeStats
 import com.example.chesstacticstrainer.domain.model.UserProgress
 import com.example.chesstacticstrainer.domain.usecase.GetThemeStatsUseCase
 import com.example.chesstacticstrainer.domain.usecase.GetUserProgressUseCase
+import com.example.chesstacticstrainer.domain.usecase.GetXiangqiUserProgressUseCase
 import kotlinx.coroutines.flow.Flow
 
 class StatsViewModel(
-    getUserProgress: GetUserProgressUseCase,
+    getChessProgress: GetUserProgressUseCase,
+    getXiangqiProgress: GetXiangqiUserProgressUseCase,
     getThemeStats: GetThemeStatsUseCase
 ) : ViewModel() {
 
-    val userProgress: Flow<UserProgress> = getUserProgress.observe()
-    val themeStats: Flow<List<ThemeStats>> = getThemeStats.observe()
+    val chessProgress: Flow<UserProgress>   = getChessProgress.observe()
+    val xiangqiProgress: Flow<UserProgress> = getXiangqiProgress.observe()
+    val themeStats: Flow<List<ThemeStats>>  = getThemeStats.observe()
 
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
@@ -25,6 +28,7 @@ class StatsViewModel(
                 val app = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as ChessTacticsApp
                 StatsViewModel(
                     app.container.getUserProgressUseCase,
+                    app.container.getXiangqiUserProgressUseCase,
                     app.container.getThemeStatsUseCase
                 )
             }
