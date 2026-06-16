@@ -1,0 +1,364 @@
+{
+  "puzzles": [
+    {
+      "id": "ac001",
+      "fen": "7/3L3/7/7/7/7/7/7/7 r",
+      "solutionMoves": ["d1d0"],
+      "themes": ["denEntry"],
+      "rating": 800,
+      "isSolved": false
+    },
+    {
+      "id": "ac002",
+      "fen": "7/7/1T5/7/7/7/1c5/7/7 r",
+      "solutionMoves": ["b2b6"],
+      "themes": ["waterJump", "capture"],
+      "rating": 900,
+      "isSolved": false
+    },
+    {
+      "id": "ac003",
+      "fen": "7/7/7/7/7/7/7/1M5/1e5 r",
+      "solutionMoves": ["b7b8"],
+      "themes": ["mouseElephant", "capture"],
+      "rating": 850,
+      "isSolved": false
+    },
+    {
+      "id": "ac004",
+      "fen": "7/7/7/7/7/7/7/3l3/7 b",
+      "solutionMoves": ["d7d8"],
+      "themes": ["denEntry"],
+      "rating": 800,
+      "isSolved": false
+    },
+    {
+      "id": "ac005",
+      "fen": "7/7/7/7/7/7/7/6L/6d r",
+      "solutionMoves": ["g7g8"],
+      "themes": ["capture"],
+      "rating": 800,
+      "isSolved": false
+    },
+    {
+      "id": "ac006",
+      "fen": "7/7/7/7/7/7/5t1/7/7 b",
+      "solutionMoves": ["f6f2"],
+      "themes": ["waterJump"],
+      "rating": 900,
+      "isSolved": false
+    },
+    {
+      "id": "ac007",
+      "fen": "7/7/7/7/7/7/7/M6/e6 r",
+      "solutionMoves": ["a7a8"],
+      "themes": ["mouseElephant", "capture"],
+      "rating": 850,
+      "isSolved": false
+    },
+    {
+      "id": "ac008",
+      "fen": "7/7/7/7/7/7/7/7/2l4 b",
+      "solutionMoves": ["c8d8"],
+      "themes": ["denEntry"],
+      "rating": 800,
+      "isSolved": false
+    },
+    {
+      "id": "ac009",
+      "fen": "7/3L3/7/7/7/7/7/7/6M r",
+      "solutionMoves": ["d1d0"],
+      "themes": ["denEntry"],
+      "rating": 800,
+      "isSolved": false
+    },
+    {
+      "id": "ac010",
+      "fen": "7/7/7/7/7/7/7/7/4l2 b",
+      "solutionMoves": ["e8d8"],
+      "themes": ["denEntry"],
+      "rating": 800,
+      "isSolved": false
+    },
+    {
+      "id": "ac011",
+      "fen": "7/7/1c5/7/7/7/1T5/7/7 r",
+      "solutionMoves": ["b6b2"],
+      "themes": ["waterJump", "capture"],
+      "rating": 900,
+      "isSolved": false
+    },
+    {
+      "id": "ac012",
+      "fen": "7/7/5C1/7/7/7/5t1/7/7 b",
+      "solutionMoves": ["f6f2"],
+      "themes": ["waterJump", "capture"],
+      "rating": 900,
+      "isSolved": false
+    },
+    {
+      "id": "ac013",
+      "fen": "7/7/7/7/7/7/7/4M2/4e2 r",
+      "solutionMoves": ["e7e8"],
+      "themes": ["mouseElephant", "capture"],
+      "rating": 850,
+      "isSolved": false
+    },
+    {
+      "id": "ac014",
+      "fen": "7/7/7/7/7/7/7/6M/6e r",
+      "solutionMoves": ["g7g8"],
+      "themes": ["mouseElephant", "capture"],
+      "rating": 850,
+      "isSolved": false
+    },
+    {
+      "id": "ac015",
+      "fen": "7/7/7/7/7/7/7/5E1/5m1 b",
+      "solutionMoves": ["f8f7"],
+      "themes": ["mouseElephant", "capture"],
+      "rating": 850,
+      "isSolved": false
+    },
+    {
+      "id": "ac016",
+      "fen": "7/7/7/7/7/7/7/6m/6E b",
+      "solutionMoves": ["g7g8"],
+      "themes": ["mouseElephant", "capture"],
+      "rating": 850,
+      "isSolved": false
+    },
+    {
+      "id": "ac017",
+      "fen": "7/7/7/7/7/7/1L5/7/7 r",
+      "solutionMoves": ["b6b2"],
+      "themes": ["waterJump"],
+      "rating": 850,
+      "isSolved": false
+    },
+    {
+      "id": "ac018",
+      "fen": "7/7/7/7/7/7/7/t6/W6 b",
+      "solutionMoves": ["a7a8"],
+      "themes": ["capture"],
+      "rating": 800,
+      "isSolved": false
+    },
+    {
+      "id": "ac019",
+      "fen": "7/7/7/7/7/7/7/3l3/2D4 b",
+      "solutionMoves": ["d7d8"],
+      "themes": ["denEntry"],
+      "rating": 850,
+      "isSolved": false
+    },
+    {
+      "id": "ac020",
+      "fen": "7/7/7/7/7/7/7/3l3/4D2 b",
+      "solutionMoves": ["d7d8"],
+      "themes": ["denEntry"],
+      "rating": 850,
+      "isSolved": false
+    },
+    {
+      "id": "ac021",
+      "fen": "2L4/7/7/7/7/7/7/7/7 r",
+      "solutionMoves": ["c0d0"],
+      "themes": ["denEntry"],
+      "rating": 800,
+      "isSolved": false
+    },
+    {
+      "id": "ac022",
+      "fen": "4L2/7/7/7/7/7/7/7/7 r",
+      "solutionMoves": ["e0d0"],
+      "themes": ["denEntry"],
+      "rating": 800,
+      "isSolved": false
+    },
+    {
+      "id": "ac023",
+      "fen": "7/7/7/7/7/7/7/7/2t4 b",
+      "solutionMoves": ["c8d8"],
+      "themes": ["denEntry"],
+      "rating": 800,
+      "isSolved": false
+    },
+    {
+      "id": "ac024",
+      "fen": "7/7/7/7/7/7/7/7/4p2 b",
+      "solutionMoves": ["e8d8"],
+      "themes": ["denEntry"],
+      "rating": 800,
+      "isSolved": false
+    },
+    {
+      "id": "ac025",
+      "fen": "7/7/7/7/7/7/7/1M5/1e5 r",
+      "solutionMoves": ["b7b8"],
+      "themes": ["mouseElephant", "capture"],
+      "rating": 850,
+      "isSolved": false
+    },
+    {
+      "id": "ac026",
+      "fen": "7/7/7/7/7/7/6L/6d/7 r",
+      "solutionMoves": ["g6g7"],
+      "themes": ["capture"],
+      "rating": 800,
+      "isSolved": false
+    },
+    {
+      "id": "ac027",
+      "fen": "7/7/7/7/7/7/6l/6D/7 b",
+      "solutionMoves": ["g6g7"],
+      "themes": ["capture"],
+      "rating": 800,
+      "isSolved": false
+    },
+    {
+      "id": "ac028",
+      "fen": "7/7/7/7/7/7/7/5M1/5e1 r",
+      "solutionMoves": ["f7f8"],
+      "themes": ["mouseElephant", "capture"],
+      "rating": 850,
+      "isSolved": false
+    },
+    {
+      "id": "ac029",
+      "fen": "7/7/7/7/7/7/7/5m1/5E1 b",
+      "solutionMoves": ["f7f8"],
+      "themes": ["mouseElephant", "capture"],
+      "rating": 850,
+      "isSolved": false
+    },
+    {
+      "id": "ac030",
+      "fen": "7/7/5T1/7/7/7/5c1/7/7 r",
+      "solutionMoves": ["f2f6"],
+      "themes": ["waterJump", "capture"],
+      "rating": 900,
+      "isSolved": false
+    },
+    {
+      "id": "ac031",
+      "fen": "7/7/5t1/7/7/7/5C1/7/7 b",
+      "solutionMoves": ["f2f6"],
+      "themes": ["waterJump", "capture"],
+      "rating": 900,
+      "isSolved": false
+    },
+    {
+      "id": "ac032",
+      "fen": "7/7/1t5/7/7/7/1D5/7/7 b",
+      "solutionMoves": ["b2b6"],
+      "themes": ["waterJump", "capture"],
+      "rating": 900,
+      "isSolved": false
+    },
+    {
+      "id": "ac033",
+      "fen": "7/7/1T5/7/7/7/1d5/7/7 r",
+      "solutionMoves": ["b2b6"],
+      "themes": ["waterJump", "capture"],
+      "rating": 900,
+      "isSolved": false
+    },
+    {
+      "id": "ac034",
+      "fen": "7/3L3/7/7/7/7/7/1e5/7 r",
+      "solutionMoves": ["d1d0"],
+      "themes": ["denEntry"],
+      "rating": 800,
+      "isSolved": false
+    },
+    {
+      "id": "ac035",
+      "fen": "7/7/7/7/7/7/7/2M4/2e4 r",
+      "solutionMoves": ["c7c8"],
+      "themes": ["mouseElephant", "capture"],
+      "rating": 850,
+      "isSolved": false
+    },
+    {
+      "id": "ac036",
+      "fen": "7/7/7/7/7/7/7/2m4/2E4 b",
+      "solutionMoves": ["c7c8"],
+      "themes": ["mouseElephant", "capture"],
+      "rating": 850,
+      "isSolved": false
+    },
+    {
+      "id": "ac037",
+      "fen": "7/7/7/7/7/7/1l5/7/7 b",
+      "solutionMoves": ["b6b2"],
+      "themes": ["waterJump"],
+      "rating": 850,
+      "isSolved": false
+    },
+    {
+      "id": "ac038",
+      "fen": "7/7/7/7/7/7/5L1/7/7 r",
+      "solutionMoves": ["f6f2"],
+      "themes": ["waterJump"],
+      "rating": 850,
+      "isSolved": false
+    },
+    {
+      "id": "ac039",
+      "fen": "7/7/7/7/7/7/7/3l3/4W2 b",
+      "solutionMoves": ["d7d8"],
+      "themes": ["denEntry"],
+      "rating": 850,
+      "isSolved": false
+    },
+    {
+      "id": "ac040",
+      "fen": "7/3L3/7/7/7/7/7/7/7 r",
+      "solutionMoves": ["d1d0"],
+      "themes": ["denEntry"],
+      "rating": 800,
+      "isSolved": false
+    },
+    {
+      "id": "ac041",
+      "fen": "7/7/7/7/7/7/7/3l3/7 b",
+      "solutionMoves": ["d7d8"],
+      "themes": ["denEntry"],
+      "rating": 800,
+      "isSolved": false
+    },
+    {
+      "id": "ac042",
+      "fen": "7/7/7/7/7/7/7/6L/6w r",
+      "solutionMoves": ["g7g8"],
+      "themes": ["capture"],
+      "rating": 800,
+      "isSolved": false
+    },
+    {
+      "id": "ac043",
+      "fen": "7/7/7/7/7/7/7/6l/6W b",
+      "solutionMoves": ["g7g8"],
+      "themes": ["capture"],
+      "rating": 800,
+      "isSolved": false
+    },
+    {
+      "id": "ac044",
+      "fen": "7/7/7/7/7/7/7/7/2t4 b",
+      "solutionMoves": ["c8d8"],
+      "themes": ["denEntry"],
+      "rating": 800,
+      "isSolved": false
+    },
+    {
+      "id": "ac045",
+      "fen": "7/7/5l1/7/7/7/5L1/7/7 r",
+      "solutionMoves": ["f6f2"],
+      "themes": ["waterJump", "capture"],
+      "rating": 900,
+      "isSolved": false
+    }
+  ]
+}

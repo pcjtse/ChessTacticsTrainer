@@ -2,6 +2,8 @@ package com.example.chesstacticstrainer.di
 
 import android.content.Context
 import com.example.chesstacticstrainer.BuildConfig
+import com.example.chesstacticstrainer.data.local.AnimalProgressStore
+import com.example.chesstacticstrainer.data.local.AnimalSettingsStore
 import com.example.chesstacticstrainer.data.local.PuzzleCache
 import com.example.chesstacticstrainer.data.local.ThemeStatsStore
 import com.example.chesstacticstrainer.data.local.UserProgressStore
@@ -10,13 +12,18 @@ import com.example.chesstacticstrainer.data.local.XiangqiPuzzleCache
 import com.example.chesstacticstrainer.data.remote.LichessApiService
 import com.example.chesstacticstrainer.data.remote.OpenAiApiService
 import com.example.chesstacticstrainer.data.remote.PychessApiService
+import com.example.chesstacticstrainer.data.repository.AnimalPuzzleRepositoryImpl
 import com.example.chesstacticstrainer.data.repository.PuzzleRepositoryImpl
 import com.example.chesstacticstrainer.data.repository.XiangqiPuzzleRepositoryImpl
+import com.example.chesstacticstrainer.domain.engine.AnimalChessEngine
 import com.example.chesstacticstrainer.domain.engine.ChessEngine
 import com.example.chesstacticstrainer.domain.engine.XiangqiEngine
+import com.example.chesstacticstrainer.domain.repository.AnimalPuzzleRepository
 import com.example.chesstacticstrainer.domain.repository.PuzzleRepository
 import com.example.chesstacticstrainer.domain.repository.XiangqiPuzzleRepository
 import com.example.chesstacticstrainer.domain.usecase.GetAiExplanationUseCase
+import com.example.chesstacticstrainer.domain.usecase.GetAnimalAiExplanationUseCase
+import com.example.chesstacticstrainer.domain.usecase.GetAnimalUserProgressUseCase
 import com.example.chesstacticstrainer.domain.usecase.GetExplanationUseCase
 import com.example.chesstacticstrainer.domain.usecase.GetNextPuzzleUseCase
 import com.example.chesstacticstrainer.domain.usecase.GetNextXiangqiPuzzleUseCase
@@ -25,10 +32,12 @@ import com.example.chesstacticstrainer.domain.usecase.GetUserProgressUseCase
 import com.example.chesstacticstrainer.domain.usecase.GetXiangqiAiExplanationUseCase
 import com.example.chesstacticstrainer.domain.usecase.GetXiangqiExplanationUseCase
 import com.example.chesstacticstrainer.domain.usecase.GetXiangqiUserProgressUseCase
+import com.example.chesstacticstrainer.domain.usecase.UpdateAnimalStreakUseCase
 import com.example.chesstacticstrainer.domain.usecase.UpdateStreakUseCase
 import com.example.chesstacticstrainer.domain.usecase.UpdateXiangqiStreakUseCase
 import com.example.chesstacticstrainer.domain.usecase.ValidateMoveUseCase
 import com.example.chesstacticstrainer.domain.usecase.ValidateXiangqiMoveUseCase
+import com.example.chesstacticstrainer.engine.AnimalChessEngineImpl
 import com.example.chesstacticstrainer.engine.ChessLibEngine
 import com.example.chesstacticstrainer.engine.XiangqiEngineImpl
 import com.squareup.moshi.Moshi
@@ -66,8 +75,8 @@ class AppContainer(context: Context) {
     private val openAiApiService: OpenAiApiService = openAiRetrofit.create(OpenAiApiService::class.java)
 
     // Chess
-    private val puzzleCache    = PuzzleCache(context, moshi)
-    private val progressStore  = UserProgressStore(context)
+    private val puzzleCache     = PuzzleCache(context, moshi)
+    private val progressStore   = UserProgressStore(context)
     private val themeStatsStore = ThemeStatsStore(context, moshi)
 
     val engine: ChessEngine = ChessLibEngine()
@@ -79,18 +88,18 @@ class AppContainer(context: Context) {
         apiService      = apiService
     )
 
-    val getNextPuzzleUseCase    = GetNextPuzzleUseCase(repository, engine)
-    val validateMoveUseCase     = ValidateMoveUseCase(engine)
-    val getExplanationUseCase   = GetExplanationUseCase()
-    val updateStreakUseCase      = UpdateStreakUseCase(repository)
-    val getUserProgressUseCase   = GetUserProgressUseCase(repository)
-    val getThemeStatsUseCase     = GetThemeStatsUseCase(repository)
-    val getAiExplanationUseCase  = GetAiExplanationUseCase(openAiApiService, BuildConfig.OPENAI_API_KEY)
+    val getNextPuzzleUseCase   = GetNextPuzzleUseCase(repository, engine)
+    val validateMoveUseCase    = ValidateMoveUseCase(engine)
+    val getExplanationUseCase  = GetExplanationUseCase()
+    val updateStreakUseCase     = UpdateStreakUseCase(repository)
+    val getUserProgressUseCase  = GetUserProgressUseCase(repository)
+    val getThemeStatsUseCase    = GetThemeStatsUseCase(repository)
+    val getAiExplanationUseCase = GetAiExplanationUseCase(openAiApiService, BuildConfig.OPENAI_API_KEY)
 
     // Xiangqi
-    private val xiangqiPuzzleCache  = XiangqiPuzzleCache(context, moshi)
-    private val xiangqiProgressStore = XiangqiProgressStore(context)
-    private val pychessApiService    = PychessApiService(okHttpClient, moshi)
+    private val xiangqiPuzzleCache   = XiangqiPuzzleCache(context, moshi)
+    private val xiangqiProgressStore  = XiangqiProgressStore(context)
+    private val pychessApiService     = PychessApiService(okHttpClient, moshi)
 
     val xiangqiEngine: XiangqiEngine = XiangqiEngineImpl()
 
@@ -106,4 +115,19 @@ class AppContainer(context: Context) {
     val updateXiangqiStreakUseCase     = UpdateXiangqiStreakUseCase(xiangqiRepository)
     val getXiangqiUserProgressUseCase  = GetXiangqiUserProgressUseCase(xiangqiRepository)
     val getXiangqiAiExplanationUseCase = GetXiangqiAiExplanationUseCase(openAiApiService, BuildConfig.OPENAI_API_KEY)
+
+    // Animal Chess
+    private val animalProgressStore  = AnimalProgressStore(context)
+
+    val animalEngine: AnimalChessEngine = AnimalChessEngineImpl()
+
+    val animalRepository: AnimalPuzzleRepository = AnimalPuzzleRepositoryImpl(
+        progressStore = animalProgressStore
+    )
+
+    val updateAnimalStreakUseCase     = UpdateAnimalStreakUseCase(animalRepository)
+    val getAnimalUserProgressUseCase  = GetAnimalUserProgressUseCase(animalRepository)
+    val getAnimalAiExplanationUseCase = GetAnimalAiExplanationUseCase(openAiApiService, BuildConfig.OPENAI_API_KEY)
+
+    val animalSettingsStore = AnimalSettingsStore(context)
 }
