@@ -55,6 +55,17 @@ private fun animalChineseName(type: AnimalType) = when (type) {
     AnimalType.MOUSE    -> "鼠"
 }
 
+private fun animalRank(type: AnimalType) = when (type) {
+    AnimalType.ELEPHANT -> "8"
+    AnimalType.LION     -> "7"
+    AnimalType.TIGER    -> "6"
+    AnimalType.LEOPARD  -> "5"
+    AnimalType.WOLF     -> "4"
+    AnimalType.DOG      -> "3"
+    AnimalType.CAT      -> "2"
+    AnimalType.MOUSE    -> "1"
+}
+
 @Composable
 fun AnimalBoardComponent(
     state: AnimalUiBoardState,
@@ -312,6 +323,20 @@ private fun DrawScope.drawPieces(state: AnimalUiBoardState, cellW: Float, cellH:
                 textAlign = android.graphics.Paint.Align.CENTER
             }
             canvas.nativeCanvas.drawText(piece.emoji, center.x, center.y + emojiPaint.textSize * 0.28f, emojiPaint)
+
+            // Rank number badge — at top of ring
+            val badgePaint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+                color     = ringArgb
+                typeface  = Typeface.DEFAULT_BOLD
+                textAlign = android.graphics.Paint.Align.CENTER
+                textSize  = radius * 0.36f
+            }
+            canvas.nativeCanvas.drawText(
+                animalRank(piece.type),
+                center.x,
+                center.y - radius * 0.52f,
+                badgePaint
+            )
 
             // Chinese name badge — small text at bottom of ring
             val namePaint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {

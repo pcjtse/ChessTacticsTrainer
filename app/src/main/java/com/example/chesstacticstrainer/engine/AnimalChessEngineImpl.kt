@@ -219,8 +219,10 @@ class AnimalChessEngineImpl : AnimalChessEngine {
      * Attacker = RED → enemy traps are BLUE_TRAPS.
      * Attacker = BLUE → enemy traps are RED_TRAPS.
      */
+    // A defender is weakened when standing on the ATTACKER's own traps (i.e., traps on the attacker's side).
+    // Red's traps weaken Blue pieces; Blue's traps weaken Red pieces.
     private fun isEnemyTrap(square: String, attackerColor: AnimalColor): Boolean =
-        if (attackerColor == RED) BLUE_TRAPS.contains(square) else RED_TRAPS.contains(square)
+        if (attackerColor == RED) RED_TRAPS.contains(square) else BLUE_TRAPS.contains(square)
 
     /**
      * Returns true if entering this square would be entering the piece's own den.
@@ -307,6 +309,6 @@ class AnimalChessEngineImpl : AnimalChessEngine {
         val BLUE_TRAPS: Set<String> = setOf("c0", "e0", "d1")
         val RED_TRAPS: Set<String> = setOf("c8", "e8", "d7")
 
-        const val STARTING_FEN = "l5t/1d3c1/m1p1w1e/7/7/7/T1W1P1L/1C3D1/E5M r"
+        const val STARTING_FEN = "l5t/1d3c1/m1p1w1e/7/7/7/E1W1P1M/1C3D1/T5L r"
     }
 }

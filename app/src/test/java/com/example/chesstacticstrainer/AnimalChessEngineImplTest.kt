@@ -48,21 +48,21 @@ class AnimalChessEngineImplTest {
         assertEquals(AnimalType.TIGER, blueTiger!!.type)
         assertEquals(AnimalColor.BLUE, blueTiger.color)
 
-        // Red pieces at bottom (row 8): E=elephant at a8, M=mouse at g8
-        val redElephant = state.pieceMap["a8"]
-        assertNotNull(redElephant)
-        assertEquals(AnimalType.ELEPHANT, redElephant!!.type)
-        assertEquals(AnimalColor.RED, redElephant.color)
+        // Red pieces at bottom (row 8): T=tiger at a8, L=lion at g8
+        val redTiger = state.pieceMap["a8"]
+        assertNotNull(redTiger)
+        assertEquals(AnimalType.TIGER, redTiger!!.type)
+        assertEquals(AnimalColor.RED, redTiger.color)
 
-        val redMouse = state.pieceMap["g8"]
-        assertNotNull(redMouse)
-        assertEquals(AnimalType.MOUSE, redMouse!!.type)
-        assertEquals(AnimalColor.RED, redMouse.color)
+        val redLion = state.pieceMap["g8"]
+        assertNotNull(redLion)
+        assertEquals(AnimalType.LION, redLion!!.type)
+        assertEquals(AnimalColor.RED, redLion.color)
     }
 
     @Test
     fun `loadFen blue-to-move FEN sets sideToMove BLUE`() {
-        val state = engine.loadFen("l5t/1d3c1/m1p1w1e/7/7/7/T1W1P1L/1C3D1/E5M b")
+        val state = engine.loadFen("l5t/1d3c1/m1p1w1e/7/7/7/E1W1P1M/1C3D1/T5L b")
         assertEquals(AnimalColor.BLUE, state.sideToMove)
     }
 
@@ -220,10 +220,8 @@ class AnimalChessEngineImplTest {
     fun `entering own den is not game over for opponent`() {
         // Blue Lion at Blue den d0 is NOT a win for Red (that's the Blue den with Blue piece)
         // Red Lion should be in Blue den for game over
-        val state = engine.loadFen("3l3/7/7/7/7/7/7/7/7 r")
-        // Blue Lion at d0 — this means Blue has a piece in Blue's own den (NOT the enemy den)
-        // For Red to win, Red needs to be in Blue den. For Blue to win, Blue needs to be in Red den.
-        // This position has Blue Lion in Blue den = not a win
+        val state = engine.loadFen("3l3/7/7/7/7/7/7/7/M6 r")
+        // Blue Lion at d0 (Blue's own den), Red Mouse at a8 — neither win condition is met
         assertFalse("Blue piece in Blue own den is not game over", engine.isGameOver(state))
     }
 
