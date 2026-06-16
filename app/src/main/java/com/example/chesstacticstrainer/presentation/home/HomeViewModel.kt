@@ -10,6 +10,7 @@ import com.example.chesstacticstrainer.data.local.AnimalSettingsStore
 import com.example.chesstacticstrainer.domain.model.AnimalDifficulty
 import com.example.chesstacticstrainer.domain.model.UserProgress
 import com.example.chesstacticstrainer.domain.usecase.GetAnimalUserProgressUseCase
+import com.example.chesstacticstrainer.domain.usecase.GetGoUserProgressUseCase
 import com.example.chesstacticstrainer.domain.usecase.GetUserProgressUseCase
 import com.example.chesstacticstrainer.domain.usecase.GetXiangqiUserProgressUseCase
 import kotlinx.coroutines.flow.Flow
@@ -19,12 +20,14 @@ class HomeViewModel(
     getChessProgress: GetUserProgressUseCase,
     getXiangqiProgress: GetXiangqiUserProgressUseCase,
     getAnimalProgress: GetAnimalUserProgressUseCase,
+    getGoProgress: GetGoUserProgressUseCase,
     private val animalSettingsStore: AnimalSettingsStore
 ) : ViewModel() {
 
     val chessProgress: Flow<UserProgress>        = getChessProgress.observe()
     val xiangqiProgress: Flow<UserProgress>      = getXiangqiProgress.observe()
     val animalProgress: Flow<UserProgress>       = getAnimalProgress.observe()
+    val goProgress: Flow<UserProgress>           = getGoProgress.observe()
     val animalDifficulty: Flow<AnimalDifficulty> = animalSettingsStore.observeDifficulty()
 
     fun setDifficulty(d: AnimalDifficulty) {
@@ -39,6 +42,7 @@ class HomeViewModel(
                     app.container.getUserProgressUseCase,
                     app.container.getXiangqiUserProgressUseCase,
                     app.container.getAnimalUserProgressUseCase,
+                    app.container.getGoUserProgressUseCase,
                     app.container.animalSettingsStore
                 )
             }

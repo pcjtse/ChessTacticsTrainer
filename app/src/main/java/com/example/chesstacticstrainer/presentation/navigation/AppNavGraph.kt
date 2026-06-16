@@ -10,6 +10,7 @@ import androidx.navigation.navArgument
 import com.example.chesstacticstrainer.domain.model.AnimalDifficulty
 import com.example.chesstacticstrainer.presentation.home.HomeScreen
 import com.example.chesstacticstrainer.presentation.puzzle.AnimalGameScreen
+import com.example.chesstacticstrainer.presentation.puzzle.GoPuzzleScreen
 import com.example.chesstacticstrainer.presentation.puzzle.PuzzleScreen
 import com.example.chesstacticstrainer.presentation.puzzle.XiangqiPuzzleScreen
 import com.example.chesstacticstrainer.presentation.settings.SettingsScreen
@@ -34,7 +35,8 @@ fun AppNavGraph(
             HomeScreen(
                 onStartChess   = { navController.navigate(Screen.Puzzle.route) },
                 onStartXiangqi = { navController.navigate(Screen.XiangqiPuzzle.route) },
-                onStartAnimal  = { diff -> navController.navigate(Screen.AnimalGame.route(diff)) }
+                onStartAnimal  = { diff -> navController.navigate(Screen.AnimalGame.route(diff)) },
+                onStartGo      = { navController.navigate(Screen.GoPuzzle.route) }
             )
         }
         composable(Screen.Puzzle.route) {
@@ -53,6 +55,9 @@ fun AppNavGraph(
                 difficulty     = difficulty,
                 onNavigateBack = { navController.popBackStack() }
             )
+        }
+        composable(Screen.GoPuzzle.route) {
+            GoPuzzleScreen(onNavigateBack = { navController.popBackStack() })
         }
         composable(Screen.Stats.route) {
             StatsScreen()

@@ -9,6 +9,7 @@ sealed class Screen(val route: String) {
     data object AnimalGame   : Screen("game/animal/{difficulty}") {
         fun route(difficulty: AnimalDifficulty) = "game/animal/${difficulty.name}"
     }
+    data object GoPuzzle     : Screen("puzzle/go")
     data object Stats        : Screen("stats")
     data object Settings     : Screen("settings")
 }

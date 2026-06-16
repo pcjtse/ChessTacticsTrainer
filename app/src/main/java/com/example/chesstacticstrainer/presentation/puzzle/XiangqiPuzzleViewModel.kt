@@ -188,6 +188,7 @@ class XiangqiPuzzleViewModel(
         val state  = _uiState.value as? XiangqiPuzzleUiState.Active ?: return
         if (state.result == null || state.isLoadingAi || state.aiExplanation != null) return
         val puzzle = currentPuzzle ?: return
+        val requestedForId = puzzle.id
 
         // Reset the board to the original puzzle position so it matches the AI explanation.
         // The AI always describes moves from puzzle.fen (the starting position), but after a
@@ -207,16 +208,16 @@ class XiangqiPuzzleViewModel(
                 rating        = puzzle.rating,
                 playerWon     = state.result == PuzzleResult.COMPLETE
             ).onSuccess { text ->
-                (_uiState.value as? XiangqiPuzzleUiState.Active)?.let {
-                    _uiState.value = it.copy(aiExplanation = text, isLoadingAi = false)
-                }
+                val current = _uiState.value as? XiangqiPuzzleUiState.Active ?: return@onSuccess
+                if (current.puzzleId != requestedForId) return@onSuccess
+                _uiState.value = current.copy(aiExplanation = text, isLoadingAi = false)
             }.onFailure { e ->
-                (_uiState.value as? XiangqiPuzzleUiState.Active)?.let {
-                    _uiState.value = it.copy(
-                        aiExplanation = "无法加载AI解说：${e.message}",
-                        isLoadingAi = false
-                    )
-                }
+                val current = _uiState.value as? XiangqiPuzzleUiState.Active ?: return@onFailure
+                if (current.puzzleId != requestedForId) return@onFailure
+                _uiState.value = current.copy(
+                    aiExplanation = "无法加载AI解说：${e.message}",
+                    isLoadingAi = false
+                )
             }
         }
     }

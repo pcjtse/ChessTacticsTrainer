@@ -204,6 +204,7 @@ class PuzzleViewModel(
         val state = _uiState.value as? PuzzleUiState.Active ?: return
         if (state.result == null || state.isLoadingAi || state.aiExplanation != null) return
         val puzzle = currentPuzzle ?: return
+        val requestedForId = puzzle.id
 
         _uiState.value = state.copy(isLoadingAi = true)
         viewModelScope.launch {
@@ -215,17 +216,17 @@ class PuzzleViewModel(
                 playerWon = state.result == PuzzleResult.COMPLETE
             )
                 .onSuccess { text ->
-                    (_uiState.value as? PuzzleUiState.Active)?.let {
-                        _uiState.value = it.copy(aiExplanation = text, isLoadingAi = false)
-                    }
+                    val current = _uiState.value as? PuzzleUiState.Active ?: return@onSuccess
+                    if (current.puzzleId != requestedForId) return@onSuccess
+                    _uiState.value = current.copy(aiExplanation = text, isLoadingAi = false)
                 }
                 .onFailure { e ->
-                    (_uiState.value as? PuzzleUiState.Active)?.let {
-                        _uiState.value = it.copy(
-                            aiExplanation = "Could not load AI explanation: ${e.message}",
-                            isLoadingAi = false
-                        )
-                    }
+                    val current = _uiState.value as? PuzzleUiState.Active ?: return@onFailure
+                    if (current.puzzleId != requestedForId) return@onFailure
+                    _uiState.value = current.copy(
+                        aiExplanation = "Could not load AI explanation: ${e.message}",
+                        isLoadingAi = false
+                    )
                 }
         }
     }

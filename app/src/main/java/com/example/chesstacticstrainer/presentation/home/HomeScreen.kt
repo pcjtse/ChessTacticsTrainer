@@ -45,11 +45,13 @@ fun HomeScreen(
     onStartChess: () -> Unit,
     onStartXiangqi: () -> Unit,
     onStartAnimal: (AnimalDifficulty) -> Unit,
+    onStartGo: () -> Unit,
     viewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory)
 ) {
     val chess              by viewModel.chessProgress.collectAsState(initial = null)
     val xiangqi            by viewModel.xiangqiProgress.collectAsState(initial = null)
     val animal             by viewModel.animalProgress.collectAsState(initial = null)
+    val go                 by viewModel.goProgress.collectAsState(initial = null)
     val selectedDifficulty by viewModel.animalDifficulty.collectAsState(initial = AnimalDifficulty.MEDIUM)
 
     Scaffold(
@@ -117,6 +119,18 @@ fun HomeScreen(
                     selectedDifficulty = selectedDifficulty,
                     onDifficultyChange = { viewModel.setDifficulty(it) },
                     onClick            = { onStartAnimal(selectedDifficulty) }
+                )
+
+                Spacer(Modifier.height(16.dp))
+
+                // Go / Weiqi card
+                ModeCard(
+                    emoji       = "⚫",
+                    title       = "围棋",
+                    subtitle    = "Go · Tsumego Puzzles",
+                    progress    = go,
+                    accentColor = androidx.compose.ui.graphics.Color(0xFF1B5E20),
+                    onClick     = onStartGo
                 )
 
                 Spacer(Modifier.height(32.dp))

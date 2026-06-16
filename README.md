@@ -1,18 +1,23 @@
 # Chess Tactics Trainer
 
-An Android app for practising chess tactics across three game modes: International Chess puzzles sourced live from Lichess, Chinese Chess (Xiangqi) puzzles, and a full Animal Chess (斗兽棋 / Dou Shou Qi) game against an on-device AI opponent.
+An Android app for practising chess tactics across four game modes: International Chess puzzles sourced live from Lichess, Chinese Chess (Xiangqi) puzzles, a full Animal Chess (斗兽棋 / Dou Shou Qi) game against an on-device AI opponent, and Go / Tsumego (围棋死活题) life-and-death puzzles.
 
 ## Screenshots
 
 ### Home Screen
-| All modes (top) | Animal Chess card with difficulty selector |
+| All modes (top) | Animal Chess & Go Puzzle cards |
 |:---:|:---:|
-| ![Home top](screenshots/screenshot_home.png) | ![Home Animal](screenshots/screenshot_home_animal.png) |
+| ![Home top](screenshots/screenshot_home.png) | ![Home Go](screenshots/screenshot_home_go.png) |
 
 ### Game Modes
-| International Chess | Chinese Chess (象棋) | Animal Chess (斗兽棋) | Stats |
-|:---:|:---:|:---:|:---:|
-| ![Chess puzzle](screenshots/screenshot_chess.png) | ![Xiangqi puzzle](screenshots/screenshot_xiangqi.png) | ![Animal Chess](screenshots/screenshot_animal.png) | ![Stats](screenshots/screenshot_stats.png) |
+| International Chess | Chinese Chess (象棋) | Animal Chess (斗兽棋) | Go Tsumego (围棋) | Stats |
+|:---:|:---:|:---:|:---:|:---:|
+| ![Chess puzzle](screenshots/screenshot_chess.png) | ![Xiangqi puzzle](screenshots/screenshot_xiangqi.png) | ![Animal Chess](screenshots/screenshot_animal.png) | ![Go puzzle](screenshots/screenshot_go.png) | ![Stats](screenshots/screenshot_stats.png) |
+
+### Go Puzzle — Viewport Zoom
+| Beginner (9×9 / small board) | Intermediate (19×19 zoomed into action) |
+|:---:|:---:|
+| ![Go beginner](screenshots/screenshot_go.png) | ![Go zoomed](screenshots/screenshot_go_zoomed.png) |
 
 ## Features
 
@@ -37,6 +42,15 @@ An Android app for practising chess tactics across three game modes: Internation
 - **Correct starting layout** — standard mirror-image setup (Blue/Red sides are left-right reflections)
 - **Offline & no API key needed** — AI runs entirely on-device; no network required
 
+### Go / Tsumego (围棋死活题)
+- **Life-and-death puzzles** — tsumego sourced live from goproblems.com (no account required)
+- **SGF parser** — recursive-descent SGF parser handles multi-branch solution trees; supports `AB`/`AW` setup stones, `B`/`W` moves, `SZ`, `PL`, and board-size inference when `SZ` is absent
+- **Five difficulty tiers** — 入门 / 简单 / 中级 / 困难 / 高手 (Beginner through Expert), switchable mid-session
+- **Viewport zoom** — board automatically zooms into the active area so stones are always large and readable, even on a 19×19 grid
+- **Branching solution tree** — all correct variations are accepted; only the marked main line is highlighted as a hint or shown in "Show Solution"
+- **Hints & Show Solution** — hint reveals the next stone to play; Show Solution restores the board and highlights the correct move even mid-puzzle
+- **AI Coach** — after completing or failing, request a GPT-powered explanation of the tesuji in Chinese
+
 ### General
 - **Stats tracking** — solve streak, rating, and accuracy per game mode stored in DataStore
 - **Background prefetch** — Chess puzzles are cached ahead of time so there's no wait between rounds
@@ -50,6 +64,8 @@ An Android app for practising chess tactics across three game modes: Internation
 | Chess engine | [chesslib](https://github.com/bhlangonijr/chesslib) 1.3.3 |
 | Xiangqi engine | Custom Kotlin engine (UCCI notation) |
 | Animal Chess engine | Custom Kotlin engine + minimax AI (alpha-beta pruning) |
+| Go engine | Custom Kotlin engine (liberty counting, capture, ko detection) |
+| Go puzzle format | Custom recursive-descent SGF parser with branching solution trees |
 | Networking | Retrofit + OkHttp + Moshi |
 | Local storage | DataStore Preferences |
 | Background work | WorkManager |
@@ -85,26 +101,29 @@ An Android app for practising chess tactics across three game modes: Internation
 ```
 app/
 ├── data/
-│   ├── local/          # DataStore: puzzle cache, progress, theme stats, animal settings
+│   ├── local/          # DataStore: puzzle cache, progress, theme stats; GoSgfParser (SGF → GoPuzzle)
 │   ├── mapper/         # Lichess API DTO → domain model (self-correcting FEN reconstruction)
-│   ├── remote/         # Retrofit services for Lichess, Pychess, and OpenAI
-│   └── repository/     # PuzzleRepositoryImpl, XiangqiPuzzleRepositoryImpl, AnimalPuzzleRepositoryImpl
+│   ├── remote/         # Retrofit services for Lichess, Pychess, goproblems.com, and OpenAI
+│   └── repository/     # PuzzleRepositoryImpl, XiangqiPuzzleRepositoryImpl, GoPuzzleRepositoryImpl, …
 ├── di/
 │   └── AppContainer.kt # Service locator wired in Application class
 ├── domain/
-│   ├── engine/         # ChessEngine, XiangqiEngine, AnimalChessEngine interfaces
-│   ├── model/          # Puzzle, BoardState, UserProgress, AnimalDifficulty, …
+│   ├── engine/         # ChessEngine, XiangqiEngine, AnimalChessEngine, GoEngine interfaces
+│   ├── model/          # Puzzle, BoardState, GoPuzzle, GoSgfNode, GoPoint, UserProgress, …
 │   ├── repository/     # Repository interfaces
-│   └── usecase/        # GetNextPuzzle, ValidateMove, GetAiExplanation, …
+│   └── usecase/        # GetNextPuzzle, ValidateMove, GetAiExplanation, GetNextGoPuzzle, …
 ├── engine/
-│   ├── ChessLibEngine.kt      # chesslib adapter
-│   ├── XiangqiEngineImpl.kt   # Full Xiangqi rule engine
+│   ├── ChessLibEngine.kt        # chesslib adapter
+│   ├── XiangqiEngineImpl.kt     # Full Xiangqi rule engine
 │   ├── AnimalChessEngineImpl.kt # Full Dou Shou Qi rule engine
-│   └── AnimalChessAI.kt       # Minimax + alpha-beta pruning AI
+│   ├── AnimalChessAI.kt         # Minimax + alpha-beta pruning AI
+│   └── GoEngineImpl.kt          # Go engine: stone placement, capture, liberty counting, ko
 └── presentation/
-    ├── board/          # ChessBoardComponent, XiangqiBoardComponent, AnimalBoardComponent
+    ├── board/          # ChessBoardComponent, XiangqiBoardComponent, AnimalBoardComponent,
+    │                   # GoBoardComponent (Canvas, viewport zoom), GoUiBoardState, GoViewport
     ├── home/           # Home screen with per-mode stats and difficulty selector
-    ├── puzzle/         # PuzzleScreen, XiangqiPuzzleScreen, AnimalGameScreen + ViewModels
+    ├── puzzle/         # PuzzleScreen, XiangqiPuzzleScreen, AnimalGameScreen,
+    │                   # GoPuzzleScreen + ViewModels
     ├── stats/          # Per-theme stats screen
     └── settings/       # Settings screen
 ```
