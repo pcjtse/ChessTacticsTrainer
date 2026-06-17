@@ -16,7 +16,8 @@ class GetAiExplanationUseCase(
         themes: List<String>,
         solutionMoves: List<String>,
         rating: Int,
-        playerWon: Boolean
+        playerWon: Boolean,
+        isEnglish: Boolean = true
     ): Result<String> {
         if (!isAvailable) return Result.failure(IllegalStateException("OpenAI API key not configured"))
 
@@ -35,9 +36,10 @@ class GetAiExplanationUseCase(
                 if (moveSequence.isNotBlank()) append("Solution moves (UCI notation): $moveSequence\n")
                 append(outcomeText)
                 append("\nFocus on the tactical idea — why the winning move works. Be specific to this position and mention the pieces and squares involved.")
+                if (!isEnglish) append("\nPlease respond in Chinese (中文).")
             }
 
-            Log.d("CTT", "AI prompt: fen=$fen themes=$themeLabel moves=${solutionMoves} playerWon=$playerWon")
+            Log.d("CTT", "AI prompt: fen=$fen themes=$themeLabel moves=${solutionMoves} playerWon=$playerWon isEnglish=$isEnglish")
 
             val request = OpenAiRequest(
                 messages = listOf(

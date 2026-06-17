@@ -20,7 +20,8 @@ import com.example.chesstacticstrainer.presentation.stats.StatsScreen
 fun AppNavGraph(
     navController: NavHostController,
     modifier: Modifier = Modifier,
-    startOnPuzzle: Boolean = false
+    startOnPuzzle: Boolean = false,
+    onToggleLanguage: () -> Unit = {}
 ) {
     LaunchedEffect(startOnPuzzle) {
         if (startOnPuzzle) navController.navigate(Screen.Puzzle.route)
@@ -33,10 +34,11 @@ fun AppNavGraph(
     ) {
         composable(Screen.Home.route) {
             HomeScreen(
-                onStartChess   = { navController.navigate(Screen.Puzzle.route) },
-                onStartXiangqi = { navController.navigate(Screen.XiangqiPuzzle.route) },
-                onStartAnimal  = { diff -> navController.navigate(Screen.AnimalGame.route(diff)) },
-                onStartGo      = { navController.navigate(Screen.GoPuzzle.route) }
+                onStartChess      = { navController.navigate(Screen.Puzzle.route) },
+                onStartXiangqi    = { navController.navigate(Screen.XiangqiPuzzle.route) },
+                onStartAnimal     = { diff -> navController.navigate(Screen.AnimalGame.route(diff)) },
+                onStartGo         = { navController.navigate(Screen.GoPuzzle.route) },
+                onToggleLanguage  = onToggleLanguage
             )
         }
         composable(Screen.Puzzle.route) {

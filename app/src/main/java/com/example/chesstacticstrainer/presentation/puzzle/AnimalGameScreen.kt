@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.chesstacticstrainer.domain.model.AnimalDifficulty
+import com.example.chesstacticstrainer.presentation.LocalStrings
 import com.example.chesstacticstrainer.presentation.board.AnimalBoardComponent
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,20 +51,21 @@ fun AnimalGameScreen(
     onNavigateBack: () -> Unit,
     viewModel: AnimalGameViewModel = viewModel(factory = AnimalGameViewModel.factory(difficulty))
 ) {
+    val strings  = LocalStrings.current
     val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("斗兽棋 · ${difficulty.label}") },
+                title = { Text("${strings.homeAnimalTitle} · ${strings.animalDifficultyLabel(difficulty)}") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = strings.back)
                     }
                 },
                 actions = {
                     IconButton(onClick = { viewModel.onNewGame() }) {
-                        Icon(Icons.Filled.Refresh, contentDescription = "新游戏")
+                        Icon(Icons.Filled.Refresh, contentDescription = strings.animalNewGame)
                     }
                 }
             )
@@ -92,19 +94,17 @@ fun AnimalGameScreen(
                     is AnimalGameUiState.Playing -> {
                         Spacer(Modifier.height(8.dp))
 
-                        // AI captured pieces row (Blue's captures shown at top = AI side)
                         CapturedRow(
-                            label  = "AI捕获",
+                            label  = strings.animalAiCaptured,
                             pieces = state.capturedByAi,
                             color  = Color(0xFF1565C0)
                         )
 
                         Spacer(Modifier.height(6.dp))
 
-                        // Turn indicator
-                        val turnText = if (state.isAiThinking) "AI思考中…"
-                                       else if (state.currentTurn == state.playerColor) "你的回合"
-                                       else "等待AI…"
+                        val turnText = if (state.isAiThinking) strings.animalAiThinking
+                                       else if (state.currentTurn == state.playerColor) strings.animalYourTurn
+                                       else strings.animalWaitingAi
                         val turnColor = if (state.isAiThinking || state.currentTurn != state.playerColor)
                             MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary
                         Text(
@@ -123,23 +123,21 @@ fun AnimalGameScreen(
 
                         Spacer(Modifier.height(6.dp))
 
-                        // Player captured pieces row (Red's captures at bottom = player side)
                         CapturedRow(
-                            label  = "你捕获",
+                            label  = strings.animalYouCaptured,
                             pieces = state.capturedByPlayer,
                             color  = Color(0xFFC62828)
                         )
 
                         Spacer(Modifier.height(12.dp))
 
-                        // Legend
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.Center
                         ) {
-                            LegendDot(Color(0xFFC62828), "你 (红方)")
+                            LegendDot(Color(0xFFC62828), strings.animalYouRed)
                             Spacer(Modifier.width(16.dp))
-                            LegendDot(Color(0xFF1565C0), "AI (蓝方)")
+                            LegendDot(Color(0xFF1565C0), strings.animalAiBlue)
                         }
                         Spacer(Modifier.height(8.dp))
                     }
@@ -168,7 +166,7 @@ fun AnimalGameScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 Text(
-                                    text       = if (state.playerWon) "🎉 你赢了！" else "😢 AI获胜",
+                                    text       = if (state.playerWon) strings.animalYouWin else strings.animalAiWins,
                                     fontSize   = 28.sp,
                                     fontWeight = FontWeight.Bold,
                                     color      = if (state.playerWon)
@@ -177,8 +175,9 @@ fun AnimalGameScreen(
                                 )
                                 Spacer(Modifier.height(8.dp))
                                 Text(
-                                    text  = if (state.playerWon) "恭喜击败${state.difficulty.label}难度的AI！"
-                                            else "再接再厉，挑战AI！",
+                                    text  = if (state.playerWon)
+                                        strings.animalWonDesc(strings.animalDifficultyLabel(state.difficulty))
+                                    else strings.animalLostDesc,
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = if (state.playerWon)
                                         MaterialTheme.colorScheme.onPrimaryContainer
@@ -188,12 +187,12 @@ fun AnimalGameScreen(
                                 Button(
                                     onClick  = { viewModel.onNewGame() },
                                     modifier = Modifier.fillMaxWidth()
-                                ) { Text("再来一局") }
+                                ) { Text(strings.animalPlayAgain) }
                                 Spacer(Modifier.height(8.dp))
                                 OutlinedButton(
                                     onClick  = onNavigateBack,
                                     modifier = Modifier.fillMaxWidth()
-                                ) { Text("返回主菜单") }
+                                ) { Text(strings.animalBackToMenu) }
                             }
                         }
                         Spacer(Modifier.height(16.dp))
@@ -207,13 +206,14 @@ fun AnimalGameScreen(
 @Composable
 private fun CapturedRow(label: String, pieces: List<String>, color: Color) {
     if (pieces.isEmpty()) return
+    val strings = LocalStrings.current
     Row(
         modifier              = Modifier.fillMaxWidth(),
         verticalAlignment     = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start
     ) {
         Text(
-            text       = "$label：",
+            text       = "$label${strings.colon}",
             style      = MaterialTheme.typography.labelSmall,
             color      = color,
             fontWeight = FontWeight.Bold

@@ -46,6 +46,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.chesstacticstrainer.presentation.LocalStrings
 import com.example.chesstacticstrainer.presentation.board.ChessBoardComponent
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,15 +55,16 @@ fun PuzzleScreen(
     onNavigateBack: () -> Unit,
     viewModel: PuzzleViewModel = viewModel(factory = PuzzleViewModel.Factory)
 ) {
+    val strings  = LocalStrings.current
     val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Chess Puzzle") },
+                title = { Text(strings.chessPuzzleTitle) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = strings.back)
                     }
                 },
                 actions = {
@@ -70,7 +72,7 @@ fun PuzzleScreen(
                         (uiState as PuzzleUiState.Active).result == null
                     ) {
                         IconButton(onClick = { viewModel.onHintRequested() }) {
-                            Icon(Icons.Filled.Lightbulb, contentDescription = "Hint")
+                            Icon(Icons.Filled.Lightbulb, contentDescription = strings.hint)
                         }
                     }
                 }
@@ -109,12 +111,14 @@ fun PuzzleScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                "Rating: ${state.rating}",
+                                "${strings.ratingPrefix}${state.rating}",
                                 style = MaterialTheme.typography.labelLarge,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
-                                state.themes.firstOrNull()?.toDisplayName() ?: "Find the best move",
+                                state.themes.firstOrNull()
+                                    ?.let { strings.chessPuzzleThemeHint(it) }
+                                    ?: strings.findBestMove,
                                 style = MaterialTheme.typography.labelLarge,
                                 color = MaterialTheme.colorScheme.primary
                             )
@@ -122,8 +126,6 @@ fun PuzzleScreen(
 
                         Spacer(Modifier.height(8.dp))
 
-                        // hintSquare is reflected in boardState.selectedSquare/legalTargets
-                        // (set by onHintRequested), so boardState is used directly.
                         ChessBoardComponent(
                             state = state.boardState,
                             onSquareTapped = { sq ->
@@ -136,27 +138,31 @@ fun PuzzleScreen(
                         when (state.result) {
                             null -> if (state.lastMoveWasCorrect) {
                                 Text(
-                                    "Good move! Find the next one",
-                                    style = MaterialTheme.typography.bodyMedium,
+                                    strings.goodMoveFindNext,
+                                    style      = MaterialTheme.typography.bodyMedium,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.primary
+                                    color      = MaterialTheme.colorScheme.primary
                                 )
                             } else {
                                 Text(
-                                    "Find the winning move",
+                                    strings.findWinningMove,
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                             PuzzleResult.COMPLETE -> ResultCard(
                                 isSuccess = true,
-                                title = state.explanation?.tacticName ?: "Excellent!",
-                                description = state.explanation?.description ?: "Puzzle complete!",
+                                title = state.explanation?.theme
+                                    ?.let { strings.chessPuzzleThemeHint(it) }
+                                    ?: strings.excellent,
+                                description = state.explanation?.theme
+                                    ?.let { strings.chessTacticDescription(it) }
+                                    ?: strings.puzzleComplete,
                                 onNext = viewModel::onNextPuzzle
                             )
                             PuzzleResult.WRONG -> WrongMoveCard(
-                                title = state.explanation?.tacticName ?: "Incorrect",
-                                description = state.explanation?.description ?: "That's not the right move.",
+                                title = strings.incorrect,
+                                description = strings.notRightMove,
                                 showingSolution = state.showingSolution,
                                 onTryAgain = viewModel::onTryAgain,
                                 onShowSolution = viewModel::onShowSolution,
@@ -169,7 +175,7 @@ fun PuzzleScreen(
                             Spacer(Modifier.height(12.dp))
                             AiExplanationSection(
                                 state = state,
-                                onRequestAi = viewModel::onAiExplanationRequested
+                                onRequestAi = { viewModel.onAiExplanationRequested(strings.isEnglish) }
                             )
                         }
 
@@ -188,6 +194,7 @@ private fun ResultCard(
     description: String,
     onNext: () -> Unit
 ) {
+    val strings = LocalStrings.current
     val containerColor = if (isSuccess)
         MaterialTheme.colorScheme.primaryContainer
     else
@@ -227,7 +234,7 @@ private fun ResultCard(
                         MaterialTheme.colorScheme.error
                 )
             ) {
-                Text("Next Puzzle")
+                Text(strings.nextPuzzle)
             }
         }
     }
@@ -242,6 +249,7 @@ private fun WrongMoveCard(
     onShowSolution: () -> Unit,
     onNext: () -> Unit
 ) {
+    val strings = LocalStrings.current
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
@@ -277,7 +285,7 @@ private fun WrongMoveCard(
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(Modifier.size(8.dp))
-                Text("Try Again")
+                Text(strings.tryAgain)
             }
 
             Spacer(Modifier.height(8.dp))
@@ -296,7 +304,7 @@ private fun WrongMoveCard(
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(Modifier.size(8.dp))
-                Text(if (showingSolution) "Solution shown on board" else "Show Solution")
+                Text(if (showingSolution) strings.solutionShownOnBoard else strings.showSolution)
             }
 
             Spacer(Modifier.height(4.dp))
@@ -308,7 +316,7 @@ private fun WrongMoveCard(
                     contentColor = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.7f)
                 )
             ) {
-                Text("Skip to Next Puzzle")
+                Text(strings.skipToNext)
             }
         }
     }
@@ -319,6 +327,7 @@ private fun AiExplanationSection(
     state: PuzzleUiState.Active,
     onRequestAi: () -> Unit
 ) {
+    val strings = LocalStrings.current
     when {
         state.aiExplanation != null -> {
             AnimatedVisibility(visible = true, enter = fadeIn(), exit = fadeOut()) {
@@ -341,7 +350,7 @@ private fun AiExplanationSection(
                                 modifier = Modifier.size(18.dp)
                             )
                             Text(
-                                "AI Coach",
+                                strings.aiCoach,
                                 style = MaterialTheme.typography.labelLarge,
                                 color = MaterialTheme.colorScheme.secondary,
                                 fontWeight = FontWeight.Bold
@@ -389,7 +398,7 @@ private fun AiExplanationSection(
                             color = MaterialTheme.colorScheme.secondary
                         )
                         Text(
-                            "AI Coach is thinking…",
+                            strings.aiCoachThinking,
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSecondaryContainer
                         )
@@ -411,20 +420,8 @@ private fun AiExplanationSection(
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(Modifier.size(8.dp))
-                Text("Explain with AI")
+                Text(strings.explainWithAi)
             }
         }
     }
-}
-
-private fun String.toDisplayName(): String = when (this) {
-    "mateIn1"        -> "Checkmate in 1"
-    "mateIn2"        -> "Checkmate in 2"
-    "mateIn3"        -> "Checkmate in 3"
-    "fork"           -> "Fork"
-    "pin"            -> "Pin"
-    "skewer"         -> "Skewer"
-    "discoveredAttack" -> "Discovered Attack"
-    "hangingPiece"   -> "Hanging Piece"
-    else             -> replaceFirstChar { it.uppercase() }
 }

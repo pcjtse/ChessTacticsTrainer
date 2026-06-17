@@ -184,7 +184,7 @@ class XiangqiPuzzleViewModel(
         )
     }
 
-    fun onAiExplanationRequested() {
+    fun onAiExplanationRequested(isEnglish: Boolean = false) {
         val state  = _uiState.value as? XiangqiPuzzleUiState.Active ?: return
         if (state.result == null || state.isLoadingAi || state.aiExplanation != null) return
         val puzzle = currentPuzzle ?: return
@@ -206,7 +206,8 @@ class XiangqiPuzzleViewModel(
                 themes        = puzzle.themes,
                 solutionMoves = puzzle.solutionMoves,
                 rating        = puzzle.rating,
-                playerWon     = state.result == PuzzleResult.COMPLETE
+                playerWon     = state.result == PuzzleResult.COMPLETE,
+                isEnglish     = isEnglish
             ).onSuccess { text ->
                 val current = _uiState.value as? XiangqiPuzzleUiState.Active ?: return@onSuccess
                 if (current.puzzleId != requestedForId) return@onSuccess
@@ -214,8 +215,10 @@ class XiangqiPuzzleViewModel(
             }.onFailure { e ->
                 val current = _uiState.value as? XiangqiPuzzleUiState.Active ?: return@onFailure
                 if (current.puzzleId != requestedForId) return@onFailure
+                val errMsg = if (isEnglish) "Could not load AI explanation: ${e.message}"
+                             else "无法加载AI解说：${e.message}"
                 _uiState.value = current.copy(
-                    aiExplanation = "无法加载AI解说：${e.message}",
+                    aiExplanation = errMsg,
                     isLoadingAi = false
                 )
             }

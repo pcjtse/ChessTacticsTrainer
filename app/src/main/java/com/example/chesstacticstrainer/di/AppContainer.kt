@@ -4,6 +4,7 @@ import android.content.Context
 import com.example.chesstacticstrainer.BuildConfig
 import com.example.chesstacticstrainer.data.local.AnimalProgressStore
 import com.example.chesstacticstrainer.data.local.AnimalSettingsStore
+import com.example.chesstacticstrainer.data.local.LanguageStore
 import com.example.chesstacticstrainer.data.local.GoProgressStore
 import com.example.chesstacticstrainer.data.local.GoPuzzleAssetLoader
 import com.example.chesstacticstrainer.data.local.GoPuzzleCache
@@ -142,6 +143,7 @@ class AppContainer(context: Context) {
     val getAnimalAiExplanationUseCase = GetAnimalAiExplanationUseCase(openAiApiService, BuildConfig.OPENAI_API_KEY)
 
     val animalSettingsStore = AnimalSettingsStore(context)
+    val languageStore       = LanguageStore(context)
 
     // Go / Weiqi
     private val goPuzzleAssetLoader  = GoPuzzleAssetLoader(context.assets)

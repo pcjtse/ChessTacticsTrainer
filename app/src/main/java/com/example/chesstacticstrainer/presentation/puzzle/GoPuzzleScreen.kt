@@ -41,6 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.chesstacticstrainer.domain.model.GoDifficulty
+import com.example.chesstacticstrainer.presentation.LocalStrings
 import com.example.chesstacticstrainer.presentation.board.GoBoardComponent
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -49,16 +50,17 @@ fun GoPuzzleScreen(
     onNavigateBack: () -> Unit,
     viewModel: GoPuzzleViewModel = viewModel(factory = GoPuzzleViewModel.Factory)
 ) {
+    val strings            = LocalStrings.current
     val uiState           by viewModel.uiState.collectAsState()
     val selectedDifficulty by viewModel.selectedDifficulty.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("围棋死活题") },
+                title = { Text(strings.goPuzzleTitle) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = strings.back)
                     }
                 },
                 actions = {
@@ -66,7 +68,7 @@ fun GoPuzzleScreen(
                         (uiState as GoPuzzleUiState.Active).result == null
                     ) {
                         IconButton(onClick = { viewModel.onHintRequested() }) {
-                            Icon(Icons.Filled.Lightbulb, contentDescription = "提示")
+                            Icon(Icons.Filled.Lightbulb, contentDescription = strings.hint)
                         }
                     }
                 }
@@ -83,7 +85,6 @@ fun GoPuzzleScreen(
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // ── Difficulty selector ──────────────────────────────────────
                 GoDifficultySelector(
                     selected   = selectedDifficulty,
                     onSelected = viewModel::onDifficultySelected,
@@ -104,7 +105,7 @@ fun GoPuzzleScreen(
                             CircularProgressIndicator()
                             Spacer(Modifier.height(8.dp))
                             Text(
-                                "正在获取${selectedDifficulty.displayName}题目…",
+                                strings.goLoadingText(strings.goDifficultyName(selectedDifficulty)),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -114,7 +115,7 @@ fun GoPuzzleScreen(
                             Spacer(Modifier.height(80.dp))
                             Text(state.message, color = MaterialTheme.colorScheme.error)
                             Spacer(Modifier.height(16.dp))
-                            Button(onClick = { viewModel.loadNextPuzzle() }) { Text("重试") }
+                            Button(onClick = { viewModel.loadNextPuzzle() }) { Text(strings.goRetry) }
                         }
 
                         is GoPuzzleUiState.Active -> {
@@ -125,7 +126,7 @@ fun GoPuzzleScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Text(
-                                    "难度：${"★".repeat(state.difficulty.coerceIn(1, 5))}",
+                                    "${strings.goDifficultyPrefix}${"★".repeat(state.difficulty.coerceIn(1, 5))}",
                                     style = MaterialTheme.typography.labelLarge,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -144,12 +145,12 @@ fun GoPuzzleScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Text(
-                                    "黑提：${state.boardState.capturedByBlack}",
+                                    "${strings.goBlackCaptures}${state.boardState.capturedByBlack}",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                                 Text(
-                                    "白提：${state.boardState.capturedByWhite}",
+                                    "${strings.goWhiteCaptures}${state.boardState.capturedByWhite}",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -168,9 +169,8 @@ fun GoPuzzleScreen(
 
                             when (state.result) {
                                 null -> if (state.showingSolution) {
-                                    // Solution is highlighted — offer retry or skip
                                     Text(
-                                        "答案已显示，可落子或跳过",
+                                        strings.goSolutionShown,
                                         style      = MaterialTheme.typography.bodyMedium,
                                         fontWeight = FontWeight.SemiBold,
                                         color      = MaterialTheme.colorScheme.primary
@@ -186,23 +186,23 @@ fun GoPuzzleScreen(
                                         ) {
                                             Icon(Icons.Filled.Refresh, null, modifier = Modifier.size(16.dp))
                                             Spacer(Modifier.size(6.dp))
-                                            Text("再试一次")
+                                            Text(strings.goTryAgain)
                                         }
                                         Button(
                                             onClick  = viewModel::onNextPuzzle,
                                             modifier = Modifier.weight(1f)
-                                        ) { Text("跳过此题") }
+                                        ) { Text(strings.goSkip) }
                                     }
                                 } else if (state.lastMoveWasCorrect) {
                                     Text(
-                                        "好棋！请继续",
+                                        strings.goGoodMove,
                                         style      = MaterialTheme.typography.bodyMedium,
                                         fontWeight = FontWeight.SemiBold,
                                         color      = MaterialTheme.colorScheme.primary
                                     )
                                 } else {
                                     Text(
-                                        "黑先，寻找正解",
+                                        strings.goFindSolution,
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -210,8 +210,8 @@ fun GoPuzzleScreen(
 
                                 PuzzleResult.COMPLETE -> GoResultCard(
                                     isSuccess      = true,
-                                    title          = "正解！",
-                                    message        = "恭喜，棋子已被提掉。",
+                                    title          = strings.goCorrect,
+                                    message        = strings.goCongrats,
                                     onNext         = viewModel::onNextPuzzle,
                                     onTryAgain     = null,
                                     onShowSolution = null
@@ -219,8 +219,8 @@ fun GoPuzzleScreen(
 
                                 PuzzleResult.WRONG -> GoResultCard(
                                     isSuccess      = false,
-                                    title          = "走法有误",
-                                    message        = "请再思考一下。",
+                                    title          = strings.goWrongMove,
+                                    message        = strings.goThinkAgain,
                                     onNext         = viewModel::onNextPuzzle,
                                     onTryAgain     = viewModel::onTryAgain,
                                     onShowSolution = viewModel::onShowSolution
@@ -247,24 +247,23 @@ fun GoPuzzleScreen(
     }
 }
 
-// ── Difficulty selector ────────────────────────────────────────────────────────
-
 @Composable
 private fun GoDifficultySelector(
     selected: GoDifficulty,
     onSelected: (GoDifficulty) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val strings = LocalStrings.current
     Row(
-        modifier          = modifier.horizontalScroll(rememberScrollState()),
+        modifier              = modifier.horizontalScroll(rememberScrollState()),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment     = Alignment.CenterVertically
     ) {
         GoDifficulty.entries.forEach { level ->
             FilterChip(
                 selected  = level == selected,
                 onClick   = { onSelected(level) },
-                label     = { Text(level.displayName, style = MaterialTheme.typography.labelMedium) },
+                label     = { Text(strings.goDifficultyName(level), style = MaterialTheme.typography.labelMedium) },
                 colors    = FilterChipDefaults.filterChipColors(
                     selectedContainerColor = MaterialTheme.colorScheme.primary,
                     selectedLabelColor     = MaterialTheme.colorScheme.onPrimary
@@ -273,8 +272,6 @@ private fun GoDifficultySelector(
         }
     }
 }
-
-// ── Result card ────────────────────────────────────────────────────────────────
 
 @Composable
 private fun GoResultCard(
@@ -285,6 +282,7 @@ private fun GoResultCard(
     onTryAgain: (() -> Unit)?,
     onShowSolution: (() -> Unit)?
 ) {
+    val strings = LocalStrings.current
     val containerColor = if (isSuccess)
         MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.errorContainer
     val onContainerColor = if (isSuccess)
@@ -309,7 +307,7 @@ private fun GoResultCard(
                 ) {
                     Icon(Icons.Filled.Refresh, null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.size(8.dp))
-                    Text("再试一次")
+                    Text(strings.goTryAgain)
                 }
                 Spacer(Modifier.height(8.dp))
                 if (onShowSolution != null) {
@@ -317,14 +315,14 @@ private fun GoResultCard(
                         onClick  = onShowSolution,
                         modifier = Modifier.fillMaxWidth(),
                         colors   = ButtonDefaults.outlinedButtonColors(contentColor = onContainerColor)
-                    ) { Text("显示答案") }
+                    ) { Text(strings.goShowSolution) }
                     Spacer(Modifier.height(8.dp))
                 }
                 OutlinedButton(
                     onClick  = onNext,
                     modifier = Modifier.fillMaxWidth(),
                     colors   = ButtonDefaults.outlinedButtonColors(contentColor = onContainerColor)
-                ) { Text("跳过此题") }
+                ) { Text(strings.goSkip) }
             } else {
                 Button(
                     onClick  = onNext,
@@ -332,13 +330,11 @@ private fun GoResultCard(
                     colors   = ButtonDefaults.buttonColors(
                         containerColor = if (isSuccess) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
                     )
-                ) { Text("下一题") }
+                ) { Text(strings.goNext) }
             }
         }
     }
 }
-
-// ── AI coach card ──────────────────────────────────────────────────────────────
 
 @Composable
 private fun GoAiCoachCard(
@@ -346,6 +342,7 @@ private fun GoAiCoachCard(
     explanation: String?,
     onRequestAi: () -> Unit
 ) {
+    val strings = LocalStrings.current
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape    = MaterialTheme.shapes.medium,
@@ -353,7 +350,7 @@ private fun GoAiCoachCard(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                "AI围棋教练",
+                strings.goAiCoach,
                 style      = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold,
                 color      = MaterialTheme.colorScheme.onSurfaceVariant
@@ -364,14 +361,14 @@ private fun GoAiCoachCard(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
                         Spacer(Modifier.size(8.dp))
-                        Text("AI解析中…", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(strings.goAiAnalyzing, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
                 explanation != null -> {
                     Text(explanation, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 else -> {
-                    Button(onClick = onRequestAi, modifier = Modifier.fillMaxWidth()) { Text("请AI解析此题") }
+                    Button(onClick = onRequestAi, modifier = Modifier.fillMaxWidth()) { Text(strings.goAskAi) }
                 }
             }
         }

@@ -25,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -38,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.chesstacticstrainer.domain.model.AnimalDifficulty
 import com.example.chesstacticstrainer.domain.model.UserProgress
+import com.example.chesstacticstrainer.presentation.LocalStrings
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,8 +48,10 @@ fun HomeScreen(
     onStartXiangqi: () -> Unit,
     onStartAnimal: (AnimalDifficulty) -> Unit,
     onStartGo: () -> Unit,
+    onToggleLanguage: () -> Unit,
     viewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory)
 ) {
+    val strings             = LocalStrings.current
     val chess              by viewModel.chessProgress.collectAsState(initial = null)
     val xiangqi            by viewModel.xiangqiProgress.collectAsState(initial = null)
     val animal             by viewModel.animalProgress.collectAsState(initial = null)
@@ -55,7 +59,21 @@ fun HomeScreen(
     val selectedDifficulty by viewModel.animalDifficulty.collectAsState(initial = AnimalDifficulty.MEDIUM)
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("战术训练") }) }
+        topBar = {
+            TopAppBar(
+                title = { Text(strings.homeTitle) },
+                actions = {
+                    TextButton(onClick = onToggleLanguage) {
+                        Text(
+                            text       = if (strings.isEnglish) "中" else "EN",
+                            style      = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                            color      = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+            )
+        }
     ) { padding ->
         Surface(
             modifier = Modifier
@@ -76,24 +94,23 @@ fun HomeScreen(
                 Text("♟", fontSize = 56.sp)
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    "选择训练模式",
+                    strings.homeSelectMode,
                     style      = MaterialTheme.typography.headlineMedium,
                     color      = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    "通过战术题提升你的棋艺",
+                    strings.homeSubtitle,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 Spacer(Modifier.height(32.dp))
 
-                // Chess card
                 ModeCard(
                     emoji       = "♟",
-                    title       = "国际象棋",
-                    subtitle    = "International Chess",
+                    title       = strings.homeChessTitle,
+                    subtitle    = strings.homeChessSubtitle,
                     progress    = chess,
                     accentColor = MaterialTheme.colorScheme.primary,
                     onClick     = onStartChess
@@ -101,11 +118,10 @@ fun HomeScreen(
 
                 Spacer(Modifier.height(16.dp))
 
-                // Xiangqi card
                 ModeCard(
                     emoji       = "象",
-                    title       = "中国象棋",
-                    subtitle    = "Chinese Chess",
+                    title       = strings.homeXiangqiTitle,
+                    subtitle    = strings.homeXiangqiSubtitle,
                     progress    = xiangqi,
                     accentColor = Color(0xFFC62828),
                     onClick     = onStartXiangqi
@@ -113,7 +129,6 @@ fun HomeScreen(
 
                 Spacer(Modifier.height(16.dp))
 
-                // Animal Chess card with difficulty selector
                 AnimalModeCard(
                     progress           = animal,
                     selectedDifficulty = selectedDifficulty,
@@ -123,13 +138,12 @@ fun HomeScreen(
 
                 Spacer(Modifier.height(16.dp))
 
-                // Go / Weiqi card
                 ModeCard(
                     emoji       = "⚫",
-                    title       = "围棋",
-                    subtitle    = "Go · Tsumego Puzzles",
+                    title       = strings.homeGoTitle,
+                    subtitle    = strings.homeGoSubtitle,
                     progress    = go,
-                    accentColor = androidx.compose.ui.graphics.Color(0xFF1B5E20),
+                    accentColor = Color(0xFF1B5E20),
                     onClick     = onStartGo
                 )
 
@@ -147,6 +161,7 @@ private fun AnimalModeCard(
     onDifficultyChange: (AnimalDifficulty) -> Unit,
     onClick: () -> Unit
 ) {
+    val strings     = LocalStrings.current
     val accentColor = Color(0xFF2E7D32)
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -155,19 +170,19 @@ private fun AnimalModeCard(
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Row(
-                verticalAlignment      = Alignment.CenterVertically,
-                horizontalArrangement  = Arrangement.spacedBy(12.dp)
+                verticalAlignment     = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Text("🦁", fontSize = 36.sp)
                 Column {
                     Text(
-                        "斗兽棋",
+                        strings.homeAnimalTitle,
                         style      = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         color      = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        "Animal Chess",
+                        strings.homeAnimalSubtitle,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -176,7 +191,6 @@ private fun AnimalModeCard(
 
             Spacer(Modifier.height(16.dp))
 
-            // Stats chips
             Row(
                 modifier              = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -187,8 +201,8 @@ private fun AnimalModeCard(
                         Icon(Icons.Filled.LocalFireDepartment, null,
                             tint = accentColor, modifier = Modifier.size(20.dp))
                     },
-                    label = "连胜",
-                    value = "${progress?.currentStreak ?: 0}天"
+                    label = strings.homeStreak,
+                    value = "${progress?.currentStreak ?: 0}${strings.homeDaysUnit}"
                 )
                 MiniStatChip(
                     modifier = Modifier.weight(1f),
@@ -196,7 +210,7 @@ private fun AnimalModeCard(
                         Icon(Icons.Filled.Star, null,
                             tint = accentColor, modifier = Modifier.size(20.dp))
                     },
-                    label = "评分",
+                    label = strings.homeRating,
                     value = "${progress?.rating ?: 1200}"
                 )
             }
@@ -208,7 +222,7 @@ private fun AnimalModeCard(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        "已玩：${progress?.totalSolved ?: 0}",
+                        "${strings.homePlayed}${strings.colon}${progress?.totalSolved ?: 0}",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -216,7 +230,7 @@ private fun AnimalModeCard(
                         if (it.totalAttempted > 0) it.totalSolved * 100 / it.totalAttempted else 0
                     } ?: 0
                     Text(
-                        "胜率：$acc%",
+                        "${strings.homeWinRate}${strings.colon}$acc%",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -225,9 +239,8 @@ private fun AnimalModeCard(
 
             Spacer(Modifier.height(12.dp))
 
-            // Difficulty selector
             Text(
-                "难度",
+                strings.homeDifficulty,
                 style      = MaterialTheme.typography.labelMedium,
                 color      = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.SemiBold
@@ -241,7 +254,7 @@ private fun AnimalModeCard(
                     FilterChip(
                         selected = diff == selectedDifficulty,
                         onClick  = { onDifficultyChange(diff) },
-                        label    = { Text(diff.label) }
+                        label    = { Text(strings.animalDifficultyLabel(diff)) }
                     )
                 }
             }
@@ -255,7 +268,7 @@ private fun AnimalModeCard(
                     .height(48.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = accentColor)
             ) {
-                Text("开始游戏", style = MaterialTheme.typography.titleSmall)
+                Text(strings.homeStartGame, style = MaterialTheme.typography.titleSmall)
             }
         }
     }
@@ -270,6 +283,7 @@ private fun ModeCard(
     accentColor: Color,
     onClick: () -> Unit
 ) {
+    val strings = LocalStrings.current
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape    = MaterialTheme.shapes.large,
@@ -277,8 +291,8 @@ private fun ModeCard(
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Row(
-                verticalAlignment      = Alignment.CenterVertically,
-                horizontalArrangement  = Arrangement.spacedBy(12.dp)
+                verticalAlignment     = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Text(emoji, fontSize = 36.sp)
                 Column {
@@ -308,8 +322,8 @@ private fun ModeCard(
                         Icon(Icons.Filled.LocalFireDepartment, null,
                             tint = accentColor, modifier = Modifier.size(20.dp))
                     },
-                    label = "连胜",
-                    value = "${progress?.currentStreak ?: 0}天"
+                    label = strings.homeStreak,
+                    value = "${progress?.currentStreak ?: 0}${strings.homeDaysUnit}"
                 )
                 MiniStatChip(
                     modifier = Modifier.weight(1f),
@@ -317,7 +331,7 @@ private fun ModeCard(
                         Icon(Icons.Filled.Star, null,
                             tint = accentColor, modifier = Modifier.size(20.dp))
                     },
-                    label = "评分",
+                    label = strings.homeRating,
                     value = "${progress?.rating ?: 1200}"
                 )
             }
@@ -329,7 +343,7 @@ private fun ModeCard(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        "已解：${progress?.totalSolved ?: 0}",
+                        "${strings.homeSolved}${strings.colon}${progress?.totalSolved ?: 0}",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -337,7 +351,7 @@ private fun ModeCard(
                         if (it.totalAttempted > 0) it.totalSolved * 100 / it.totalAttempted else 0
                     } ?: 0
                     Text(
-                        "正确率：$acc%",
+                        "${strings.homeAccuracy}${strings.colon}$acc%",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -353,7 +367,7 @@ private fun ModeCard(
                     .height(48.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = accentColor)
             ) {
-                Text("开始练习", style = MaterialTheme.typography.titleSmall)
+                Text(strings.homeStartPractice, style = MaterialTheme.typography.titleSmall)
             }
         }
     }

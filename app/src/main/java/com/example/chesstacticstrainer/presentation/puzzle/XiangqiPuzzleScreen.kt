@@ -46,6 +46,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.chesstacticstrainer.presentation.LocalStrings
 import com.example.chesstacticstrainer.presentation.board.XiangqiBoardComponent
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,15 +55,16 @@ fun XiangqiPuzzleScreen(
     onNavigateBack: () -> Unit,
     viewModel: XiangqiPuzzleViewModel = viewModel(factory = XiangqiPuzzleViewModel.Factory)
 ) {
+    val strings  = LocalStrings.current
     val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("象棋战术") },
+                title = { Text(strings.xiangqiPuzzleTitle) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = strings.back)
                     }
                 },
                 actions = {
@@ -70,7 +72,7 @@ fun XiangqiPuzzleScreen(
                         (uiState as XiangqiPuzzleUiState.Active).result == null
                     ) {
                         IconButton(onClick = { viewModel.onHintRequested() }) {
-                            Icon(Icons.Filled.Lightbulb, contentDescription = "提示")
+                            Icon(Icons.Filled.Lightbulb, contentDescription = strings.hint)
                         }
                     }
                 }
@@ -98,7 +100,7 @@ fun XiangqiPuzzleScreen(
                         Spacer(Modifier.weight(1f))
                         Text(state.message, color = MaterialTheme.colorScheme.error)
                         Spacer(Modifier.height(16.dp))
-                        Button(onClick = { viewModel.loadNextPuzzle() }) { Text("重试") }
+                        Button(onClick = { viewModel.loadNextPuzzle() }) { Text(strings.retry) }
                         Spacer(Modifier.weight(1f))
                     }
                     is XiangqiPuzzleUiState.Active -> {
@@ -109,12 +111,14 @@ fun XiangqiPuzzleScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                "评分：${state.rating}",
+                                "${strings.ratingPrefix}${state.rating}",
                                 style = MaterialTheme.typography.labelLarge,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
-                                state.themes.firstOrNull()?.toXiangqiDisplayName() ?: "寻找最佳着法",
+                                state.themes.firstOrNull()
+                                    ?.let { strings.xiangqiThemeDisplayName(it) }
+                                    ?: strings.findBestMove,
                                 style = MaterialTheme.typography.labelLarge,
                                 color = MaterialTheme.colorScheme.primary
                             )
@@ -122,12 +126,8 @@ fun XiangqiPuzzleScreen(
 
                         Spacer(Modifier.height(8.dp))
 
-                        // hintSquare is already reflected in boardState.selectedSquare/legalTargets
-                        // (set by onHintRequested), so boardState is used directly.
-                        val boardState = state.boardState
-
                         XiangqiBoardComponent(
-                            state = boardState,
+                            state = state.boardState,
                             onSquareTapped = { sq ->
                                 if (state.result == null) viewModel.onSquareTapped(sq)
                             }
@@ -138,27 +138,31 @@ fun XiangqiPuzzleScreen(
                         when (state.result) {
                             null -> if (state.lastMoveWasCorrect) {
                                 Text(
-                                    "好棋！请继续寻找下一步",
-                                    style = MaterialTheme.typography.bodyMedium,
+                                    strings.goodMoveFindNext,
+                                    style      = MaterialTheme.typography.bodyMedium,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.primary
+                                    color      = MaterialTheme.colorScheme.primary
                                 )
                             } else {
                                 Text(
-                                    "寻找制胜着法",
+                                    strings.findWinningMove,
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                             PuzzleResult.COMPLETE -> XiangqiResultCard(
                                 isSuccess   = true,
-                                title       = state.explanation?.tacticName ?: "精彩！",
-                                description = state.explanation?.description ?: "题目完成！",
+                                title       = state.explanation?.theme
+                                    ?.let { strings.xiangqiThemeDisplayName(it) }
+                                    ?: strings.excellent,
+                                description = state.explanation?.theme
+                                    ?.let { strings.xiangqiTacticDescription(it) }
+                                    ?: strings.puzzleComplete,
                                 onNext      = viewModel::onNextPuzzle
                             )
                             PuzzleResult.WRONG -> XiangqiWrongMoveCard(
-                                title           = state.explanation?.tacticName ?: "走法有误",
-                                description     = state.explanation?.description ?: "请再试一次。",
+                                title           = strings.incorrect,
+                                description     = strings.notRightMove,
                                 showingSolution = state.showingSolution,
                                 onTryAgain      = viewModel::onTryAgain,
                                 onShowSolution  = viewModel::onShowSolution,
@@ -169,7 +173,10 @@ fun XiangqiPuzzleScreen(
 
                         if (state.result != null) {
                             Spacer(Modifier.height(12.dp))
-                            XiangqiAiSection(state = state, onRequestAi = viewModel::onAiExplanationRequested)
+                            XiangqiAiSection(
+                                state = state,
+                                onRequestAi = { viewModel.onAiExplanationRequested(strings.isEnglish) }
+                            )
                         }
 
                         Spacer(Modifier.height(16.dp))
@@ -184,6 +191,7 @@ fun XiangqiPuzzleScreen(
 private fun XiangqiResultCard(
     isSuccess: Boolean, title: String, description: String, onNext: () -> Unit
 ) {
+    val strings = LocalStrings.current
     val containerColor = if (isSuccess)
         MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.errorContainer
     val onContainerColor = if (isSuccess)
@@ -205,7 +213,7 @@ private fun XiangqiResultCard(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = if (isSuccess) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
                 )
-            ) { Text("下一题") }
+            ) { Text(strings.nextXiangqi) }
         }
     }
 }
@@ -215,6 +223,7 @@ private fun XiangqiWrongMoveCard(
     title: String, description: String, showingSolution: Boolean,
     onTryAgain: () -> Unit, onShowSolution: () -> Unit, onNext: () -> Unit
 ) {
+    val strings = LocalStrings.current
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape    = MaterialTheme.shapes.medium,
@@ -233,7 +242,7 @@ private fun XiangqiWrongMoveCard(
             ) {
                 Icon(Icons.Filled.Refresh, null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.size(8.dp))
-                Text("再试一次")
+                Text(strings.tryAgain)
             }
             Spacer(Modifier.height(8.dp))
             OutlinedButton(
@@ -243,7 +252,7 @@ private fun XiangqiWrongMoveCard(
             ) {
                 Icon(Icons.Filled.Visibility, null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.size(8.dp))
-                Text(if (showingSolution) "已在棋盘上显示答案" else "显示答案")
+                Text(if (showingSolution) strings.solutionShownOnBoard else strings.showSolution)
             }
             Spacer(Modifier.height(4.dp))
             TextButton(
@@ -251,13 +260,14 @@ private fun XiangqiWrongMoveCard(
                 colors  = ButtonDefaults.textButtonColors(
                     contentColor = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.7f)
                 )
-            ) { Text("跳过此题") }
+            ) { Text(strings.skipXiangqi) }
         }
     }
 }
 
 @Composable
 private fun XiangqiAiSection(state: XiangqiPuzzleUiState.Active, onRequestAi: () -> Unit) {
+    val strings = LocalStrings.current
     when {
         state.aiExplanation != null -> {
             AnimatedVisibility(visible = true, enter = fadeIn(), exit = fadeOut()) {
@@ -271,7 +281,7 @@ private fun XiangqiAiSection(state: XiangqiPuzzleUiState.Active, onRequestAi: ()
                             horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             Icon(Icons.Filled.AutoAwesome, null,
                                 tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(18.dp))
-                            Text("AI教练", style = MaterialTheme.typography.labelLarge,
+                            Text(strings.aiCoach, style = MaterialTheme.typography.labelLarge,
                                 color = MaterialTheme.colorScheme.secondary, fontWeight = FontWeight.Bold)
                         }
                         Spacer(Modifier.height(8.dp))
@@ -295,7 +305,7 @@ private fun XiangqiAiSection(state: XiangqiPuzzleUiState.Active, onRequestAi: ()
                         horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp,
                             color = MaterialTheme.colorScheme.secondary)
-                        Text("AI教练思考中…", style = MaterialTheme.typography.bodyMedium,
+                        Text(strings.aiCoachThinking, style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSecondaryContainer)
                     }
                 }
@@ -308,18 +318,8 @@ private fun XiangqiAiSection(state: XiangqiPuzzleUiState.Active, onRequestAi: ()
             ) {
                 Icon(Icons.Filled.AutoAwesome, null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.size(8.dp))
-                Text("AI解说")
+                Text(strings.explainWithAi)
             }
         }
     }
-}
-
-private fun String.toXiangqiDisplayName(): String = when (this) {
-    "mateIn1" -> "一步将杀"
-    "mateIn2" -> "两步将杀"
-    "mateIn3" -> "三步将杀"
-    "mateIn4" -> "四步将杀"
-    "mateIn5" -> "五步将杀"
-    "tactics" -> "战术妙手"
-    else      -> this
 }

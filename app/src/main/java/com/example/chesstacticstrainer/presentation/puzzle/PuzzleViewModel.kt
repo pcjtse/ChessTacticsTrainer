@@ -200,7 +200,7 @@ class PuzzleViewModel(
         )
     }
 
-    fun onAiExplanationRequested() {
+    fun onAiExplanationRequested(isEnglish: Boolean = true) {
         val state = _uiState.value as? PuzzleUiState.Active ?: return
         if (state.result == null || state.isLoadingAi || state.aiExplanation != null) return
         val puzzle = currentPuzzle ?: return
@@ -213,7 +213,8 @@ class PuzzleViewModel(
                 themes = puzzle.themes,
                 solutionMoves = puzzle.solutionMoves,
                 rating = puzzle.rating,
-                playerWon = state.result == PuzzleResult.COMPLETE
+                playerWon = state.result == PuzzleResult.COMPLETE,
+                isEnglish = isEnglish
             )
                 .onSuccess { text ->
                     val current = _uiState.value as? PuzzleUiState.Active ?: return@onSuccess
